@@ -1,0 +1,105 @@
+generated: '2026-09-19'
+method: probed
+source: >-
+  Live GET probes of the named /.well-known/* path list on 01mind.net and www.01mind.net, 2026-09-19. Every
+  row below is a request that was actually issued; every status is the one returned.
+summary:
+  hosts_probed: 2
+  paths_probed: 40
+  documents_served: 1
+  hit_count: 1
+  path_echo_control: passed
+  note: >-
+    01Mind serves exactly one well-known document: the A2A agent card at /.well-known/agent-card.json
+    (captured in a2a/). Every other named path returns the site's real JSON 404 ({"error":"Not found"}, 21
+    bytes, application/json) — not an SPA shell — and a negative-control path that cannot exist also 404s,
+    so the single 200 is a served document. No security.txt, no OAuth/OIDC discovery, no RFC 9727 API
+    catalog, no APIs.json, no AAuth resource document, no ai-plugin, no UCP/ACP manifest. www.01mind.net
+    301s every path to the apex and serves nothing of its own. The MCP server host is the apex itself, so
+    the RFC 9728 protected-resource probe on the MCP host is the apex row below (404).
+hosts:
+- host: 01mind.net
+  role: Website, API (OpenAPI servers[]), MCP server and A2A JSON-RPC host — one origin
+  documents:
+  - path: /.well-known/agent-card.json
+    status: 200
+    content_type: application/json
+    bytes: 6451
+    file: ../a2a/01mind-net-agent-card.json
+    standard: A2A Agent Card (protocolVersion 0.3.0)
+    note: Saved verbatim under a2a/ and graded in a2a/01mind-net-a2a.yml (conformant).
+  - path: /.well-known/agent.json
+    status: 404
+    note: Legacy pre-0.3 agent-card path. Not served.
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+    note: This is also the MCP resource host (https://01mind.net/mcp); no RFC 9728 metadata is served for it.
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/api-catalog.json
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/ucp.json
+    status: 404
+  - path: /.well-known/acp.json
+    status: 404
+    note: The Terms of Sale (clause 1.3, 4.2) name the Agent Commerce Protocol as a sales channel, but no ACP manifest is served here.
+  - path: /.well-known/aauth-resource.json
+    status: 404
+  - path: /.well-known/apis.json
+    status: 404
+  - path: /apis.json
+    status: 404
+  - path: /apis.yml
+    status: 404
+  - path: /.well-known/mcp.json
+    status: 404
+  - path: /.well-known/mcp/server-card.json
+    status: 404
+  - path: /llms.txt
+    status: 404
+  - path: /.well-known/01mind-net-negative-control-9c4e21d7.json
+    status: 404
+    control: negative
+    note: A path that cannot exist. Its 404 proves the host does not echo or catch-all /.well-known/* requests.
+- host: www.01mind.net
+  role: Alias — 301 to the apex for every path
+  documents:
+  - {path: /.well-known/agent-card.json, status: 301, redirect: 'https://01mind.net/.well-known/agent-card.json'}
+  - {path: /.well-known/agent.json, status: 301}
+  - {path: /.well-known/security.txt, status: 301}
+  - {path: /security.txt, status: 301}
+  - {path: /.well-known/openid-configuration, status: 301}
+  - {path: /.well-known/oauth-authorization-server, status: 301}
+  - {path: /.well-known/oauth-protected-resource, status: 301}
+  - {path: /.well-known/api-catalog, status: 301}
+  - {path: /.well-known/api-catalog.json, status: 301}
+  - {path: /.well-known/ai-plugin.json, status: 301}
+  - {path: /.well-known/ucp.json, status: 301}
+  - {path: /.well-known/acp.json, status: 301}
+  - {path: /.well-known/aauth-resource.json, status: 301}
+  - {path: /.well-known/apis.json, status: 301}
+  - {path: /apis.json, status: 301}
+  - {path: /apis.yml, status: 301}
+  - {path: /.well-known/mcp.json, status: 301}
+  - {path: /.well-known/mcp/server-card.json, status: 301}
+  - {path: /llms.txt, status: 301}
+  - {path: /.well-known/01mind-net-negative-control-9c4e21d7.json, status: 301, control: negative}
+robots_txt:
+  url: https://01mind.net/robots.txt
+  status: 200
+  note: >-
+    A single "User-agent: *" group with Allow: / and two Disallows (/charon and /agents/). The file's own
+    comments say AI crawlers (GPTBot, ClaudeBot, PerplexityBot, Google-Extended and others) are deliberately
+    welcome and that there are intentionally no per-agent groups. /charon is described as an agent-facing
+    document reached by direct URL, kept out of search indexes on purpose; this pipeline honoured the
+    Disallow and did not save its body.

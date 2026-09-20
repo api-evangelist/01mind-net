@@ -1,0 +1,86 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for the 01Mind Agent Superstore API
+  version: 1.0.0
+extends: ../openapi/01mind-net-openapi.json
+x-generated: '2026-09-19'
+x-method: generated
+x-source: >-
+  Generated from openapi/01mind-net-openapi.json plus the probed and searched artifacts in this repo. Captures
+  API Evangelist annotations without mutating the provider's contract. Proposed operationIds are marked as
+  proposals; they do not exist in the provider's spec.
+actions:
+- target: $.info
+  description: Link the provider's other machine-readable surfaces from the contract.
+  update:
+    x-agent-card: https://01mind.net/.well-known/agent-card.json
+    x-mcp-server: https://01mind.net/mcp
+    x-a2a-endpoint: https://01mind.net/a2a
+    x-pricing: https://01mind.net/catalogue
+    x-privacy-policy: https://01mind.net/privacy
+    x-failure-modes: https://01mind.net/failure-modes
+    x-payment:
+      protocol: x402
+      asset: USDC
+      network: eip155:8453 (Base)
+      challenge_status: 402
+      terms_version: '2026-09-15'
+- target: $.info
+  description: >-
+    Record the limits documented in operation prose and on the failure-mode catalog, since no rate-limit
+    headers are declared in the contract.
+  update:
+    x-rate-limits:
+      - {scope: per-wallet, resource: email-send-action-api, limit: 20, window: 24h}
+      - {scope: per-api-key, resource: render-document free allowance, limit: 5, window: calendar month (UTC), overage: '$0.25 per document'}
+      - {scope: per-request, resource: 'POST /execute/{listingId} body', limit: 4 MB, exhaustion_status: 413}
+      - {scope: per-api-key, resource: gateway quota, limit: unpublished, exhaustion_status: 429, headers: [Retry-After], source: 'GET /failure-modes FM-004'}
+- target: $.paths['/execute/{listingId}'].post
+  description: Proposed operationId and tag; the provider declares neither.
+  update:
+    x-apievangelist-proposed-operationId: executeListing
+    tags: [Listings]
+- target: $.paths['/sandbox/execute/{listingId}'].post
+  update:
+    x-apievangelist-proposed-operationId: dryRunListing
+    x-dry-run: true
+    tags: [Listings]
+- target: $.paths['/document-templates'].get
+  update:
+    x-apievangelist-proposed-operationId: listDocumentTemplates
+    tags: [Document Templates]
+- target: $.paths['/document-templates'].post
+  update:
+    x-apievangelist-proposed-operationId: saveDocumentTemplate
+    tags: [Document Templates]
+- target: $.paths['/document-templates/{templateId}'].delete
+  update:
+    x-apievangelist-proposed-operationId: deleteDocumentTemplate
+    x-reversible: false
+    tags: [Document Templates]
+- target: $.paths['/venue/tasks/{taskId}/close'].post
+  update:
+    x-reversible: false
+    x-reversibility-note: The provider's own summary states "Cannot be undone."
+- target: $.paths['/campaigns'].post
+  description: Flag the internal-only surface so agents do not attempt it.
+  update:
+    x-audience: internal
+    x-audience-note: Secured by X-Console-Secret, which the contract says is never issued to customers or external agents. The same applies to every /campaigns and /token-topups operation.
+- target: $.components.securitySchemes.ApiKeyAuth
+  update:
+    x-issuance: 'POST /keys (empty body) returns a free key instantly, no signup — documented in the developers page and this scheme''s description, but /keys is not declared as a path in the contract.'
+- target: $.info
+  description: Operations the provider documents in prose or serves live but does not declare in the contract.
+  update:
+    x-undeclared-operations:
+      - 'POST /keys (issue a free API key)'
+      - 'GET /usage/{keyId} (allowance remaining; 401 without a key)'
+      - 'POST /purchase/{listingId} (x402 payment leg of purchase-and-collect)'
+      - 'GET /listings/{listingId}/status (live 200)'
+      - 'GET /failure-modes (live 200, five-entry failure catalog)'
+      - 'GET /latency-beacon (live 200)'
+      - 'GET /activity (live 200, recent settled purchases)'
+      - 'GET /venue-intelligence/quick-check (live 200)'
+      - 'GET /charon (listing catalogue; robots.txt Disallow)'
+      - 'POST /charon/vision, POST /agents/suggestions (documented in the /charon orientation)'

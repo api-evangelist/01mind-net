@@ -1,0 +1,101 @@
+generated: '2026-09-19'
+method: searched
+source: https://01mind.net/catalogue
+docs:
+- https://01mind.net/developers
+- https://01mind.net/terms
+plan_count: 12
+currency: USDC
+model: pay-per-call in USDC on Base via x402; no subscription, no account, no card payments
+summary: >-
+  01Mind publishes no tiers. Every listing is priced per call (or per document/question/email) in USDC, paid
+  through x402 at the moment of use. The only recurring allowance is free: five rendered documents a month on
+  a free API key. Prices below are as shown on the catalogue page on 2026-09-19; the Terms of Sale 4.1 state
+  the price you pay is the one in the payment request and later changes do not affect a purchase already
+  made, and 4.4 that GST may be added for Australian buyers.
+plans:
+- id: render-document
+  name: Render Document
+  price: 0.25
+  currency: USDC
+  period: per document
+  included: 5 free documents per month per API key (resets on the 1st, UTC)
+  overage: 0.25 USDC per document
+  limits: ['request body up to 4 MB', 'docx or xlsx only; no PDF']
+- id: email-send-action-api
+  name: Email Send
+  price: 0.02
+  currency: USDC
+  period: per email
+  limits: ['20 sends per wallet per 24h', 'server-added disclosure footer naming 01Mind and the sending wallet']
+- id: legal-research-knowledge-api
+  name: Legal Research Knowledge
+  price: 5
+  currency: USDC
+  period: per question
+- id: au-tax-compliance-pack
+  name: AU Tax Compliance Pack
+  price: 20
+  currency: USDC
+  period: one-time; collectable again by the paying wallet at no further charge
+- id: gdpr-compliance-pack
+  name: GDPR Compliance Pack
+  price: 20
+  currency: USDC
+  period: one-time
+- id: hipaa-compliance-pack
+  name: HIPAA Compliance Pack
+  price: 25
+  currency: USDC
+  period: one-time
+- id: asic-accc-guidance-pack
+  name: ASIC ACCC Guidance Pack
+  price: 15
+  currency: USDC
+  period: one-time
+- id: aviation-safety-pack
+  name: Aviation Safety Pack
+  price: 30
+  currency: USDC
+  period: one-time
+- id: agent-economy-venue-intelligence
+  name: Agent Economy Venue Intelligence
+  price: 15
+  currency: USDC
+  period: per purchase
+  included: free single-venue summary at GET /venue-intelligence/quick-check
+- id: state-of-the-agent-economy-report
+  name: State of the Agent Economy Report
+  price: 35
+  currency: USDC
+  period: one-time
+  note: Listed on the catalogue page but not among the ten skills in the A2A agent card.
+- id: micro-tool
+  name: Charon-built micro-tool (Track A)
+  price: 0.003
+  currency: USDC
+  period: per call
+  note: >-
+    "currently around $0.003 USDC for a single tool" — a read-only lookup, stateless calculation or simple
+    API wrapper built on request from a declared recipe; asking is free, the finished tool is priced at what
+    a comparable catalogue tool costs.
+- id: bundle
+  name: Charon-built bundle (Track B)
+  price: 6
+  price_max: 15
+  currency: USDC
+  period: per purchase
+  note: 'Price scales with step count, capped at $15 — "a 2-step bundle is $6, a 4-step bundle is $9.75, 8-step (the max) is $15."'
+free_tier:
+  api_key: 'POST /keys — free, instant, no signup, no identity attached'
+  documents: 5 per month per key
+  dry_run: POST /sandbox/execute/{listingId} — free, no key, no payment
+  templates: saving and listing document templates is free and does not consume the allowance
+  research: taking part in live-research studies is unpaid; participants receive the finished report free
+  signals: GET /failure-modes, /latency-beacon, /activity, /listings/{id}/status, /venue-intelligence/quick-check
+payment_terms:
+  asset: USDC on the Base network
+  rails: [x402, 'Agent Commerce Protocol escrow (stated in Terms 4.2; no surface found)']
+  card_payments: false
+  gst: registered in Australia; may be added to the payment request for Australian buyers
+  refunds: for non-delivery only (Terms 6.2); none for change of mind (6.4)

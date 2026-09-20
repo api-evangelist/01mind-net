@@ -1,0 +1,115 @@
+generated: '2026-09-19'
+method: searched
+source: https://01mind.net/.well-known/agent-card.json
+derived_from: openapi/01mind-net-openapi.json
+docs:
+- https://01mind.net/terms
+- https://01mind.net/developers
+summary: >-
+  01Mind's conformance profile is the agent-commerce protocol stack rather than any enterprise or sector
+  standard: an A2A 0.3.0 agent card with the a2a-x402 payment extension declared as required, an MCP server
+  at protocol version 2025-06-18, JSON-RPC 2.0 on both, x402 (HTTP 402) payment settled in USDC on Base
+  (CAIP-2 eip155:8453), and EIP-191 personal_sign wallet proofs as the collection credential. It declares no
+  OAuth/OIDC, no RFC 9457 problem details, no RFC 9116 security.txt, no RFC 9727 API catalog and no
+  RFC 8594 sunset signalling. The Terms of Sale also name the Agent Commerce Protocol as a channel, which
+  could not be verified on any surface.
+standards:
+- id: a2a
+  name: Agent2Agent protocol
+  version: '0.3.0'
+  conforms: true
+  evidence: a2a/01mind-net-agent-card.json — protocolVersion "0.3.0", url https://01mind.net/a2a, preferredTransport JSONRPC, capabilities object, skills[] of 10; POST https://01mind.net/a2a answered tasks/get with A2A error -32001 Task not found. Graded conformant in a2a/01mind-net-a2a.yml.
+- id: a2a-x402
+  name: a2a-x402 payment extension
+  version: v0.1
+  conforms: true
+  evidence: a2a/01mind-net-agent-card.json capabilities.extensions[0].uri = https://github.com/google-a2a/a2a-x402/v0.1, required = true, description "settled on Base (eip155:8453)".
+  domain_standard_signature: true
+  note: The card declares the extension URI itself, which is the contract-level signature for agent commerce this market has; declared REQUIRED, so every skill depends on it.
+- id: mcp
+  name: Model Context Protocol
+  version: '2025-06-18'
+  conforms: true
+  evidence: 'POST https://01mind.net/mcp initialize returned protocolVersion "2025-06-18", serverInfo {01Mind, 3.0.0}, capabilities.tools.listChanged false; tools/list returned 3 tools with inputSchema. See mcp/01mind-net-mcp.yml.'
+- id: json-rpc-2.0
+  conforms: true
+  evidence: 'Both /mcp and /a2a answer {"jsonrpc":"2.0", ...} with standard -32601 Method not found for unimplemented methods.'
+- id: x402
+  name: x402 HTTP payment protocol
+  conforms: true
+  verification: partial
+  evidence: POST https://01mind.net/execute/render-document with an empty body returned HTTP 402 with a JSON body naming the price ($0.25), the free-allowance path (X-API-Key) and the wallet-proof path; the OpenAPI declares 402 on /execute/{listingId} and /campaigns/{campaignId}/spend; the Terms of Sale 4.2 state payment is "USDC on the Base network, either through the x402 payment protocol or through the Agent Commerce Protocol's escrow"; the card and MCP instructions both name x402.
+  note: >-
+    The 402 status and the provider's declarations were observed. The x402 PaymentRequirements payload on the
+    /purchase leg was NOT observed, because reaching it means posting to the purchase route, which this
+    pipeline does not do. Recorded as conforming on the provider's own contract and an observed 402, with
+    the payload unverified.
+- id: caip-2
+  name: CAIP-2 chain identifier
+  conforms: true
+  evidence: eip155:8453 (Base) in the agent card's extension description.
+- id: eip-191
+  name: EIP-191 personal_sign message signatures
+  conforms: true
+  evidence: >-
+    openapi/01mind-net-openapi.json — /execute/{listingId} description ("an EIP-191 personal_sign by that wallet
+    of exactly '01Mind: collect <listingId> as <walletAddress> at <signedAt>'"), applyToVenueTask, closeResearchTask
+    and converseWithResearch request schemas all require an EIP-191 signature over a documented challenge string.
+- id: openapi-3.0
+  conforms: true
+  version: 3.0.3
+  evidence: openapi/01mind-net-openapi.json openapi "3.0.3"; parses; 27 paths, 28 operations, 10 component schemas, 2 apiKey securitySchemes.
+  gaps:
+  - 6 of 28 operations have no operationId (the /execute, /sandbox/execute and /document-templates routes).
+  - No tags declared or applied.
+  - 9 operations are internal-only (X-Console-Secret) yet published in the public contract.
+  - Several routes the provider documents in prose (POST /keys, POST /purchase/{listingId}, GET /usage/{keyId}) are absent from the contract.
+- id: acp
+  name: Agent Commerce Protocol
+  conforms: false
+  claimed: true
+  evidence: Terms of Sale clauses 1.3, 4.2, 5.1 and 6.5 name the Agent Commerce Protocol and its escrow as a sales channel; /.well-known/acp.json returned 404 and no ACP endpoint is documented on the site or in the contract.
+  note: A stated channel with no discoverable surface. Recorded as claimed, not verified.
+- id: oauth2
+  conforms: false
+  evidence: No oauth2 securityScheme in the contract; /.well-known/oauth-authorization-server 404.
+- id: oidc
+  conforms: false
+  evidence: No openIdConnect securityScheme; /.well-known/openid-configuration 404.
+- id: rfc9728-protected-resource
+  conforms: false
+  evidence: /.well-known/oauth-protected-resource 404 on the MCP host (the apex).
+- id: rfc9457-problem-details
+  conforms: false
+  evidence: 'Errors are {"error": string, "detail"?: string} in application/json; observed on 402, 404 and 405 responses. See errors/01mind-net-problem-types.yml.'
+- id: rfc9116-security-txt
+  conforms: false
+  evidence: /.well-known/security.txt and /security.txt both 404.
+- id: rfc9727-api-catalog
+  conforms: false
+  evidence: /.well-known/api-catalog and /.well-known/api-catalog.json both 404.
+- id: apis-json
+  conforms: false
+  evidence: /apis.json, /apis.yml and /.well-known/apis.json all 404.
+- id: llms-txt
+  conforms: false
+  evidence: /llms.txt 404; the file in llms/ was generated by API Evangelist.
+- id: rfc8594-sunset
+  conforms: false
+  evidence: No Sunset or Deprecation header declared anywhere in the contract; retired paid tasks answer 410 Gone (getVenueTask) without a sunset signal.
+- id: idempotency-key
+  conforms: false
+  evidence: No Idempotency-Key header or equivalent on any write. Single-use EIP-191 signatures on /execute prevent replay of a collection but do not make a retry safe. See conventions/01mind-net-conventions.yml.
+- id: pagination
+  conforms: false
+  evidence: No list operation declares page, cursor, limit or offset parameters.
+- id: robots-ai-crawler-allow
+  conforms: true
+  evidence: 'https://01mind.net/robots.txt — one "User-agent: *" group, Allow: /, with a comment naming GPTBot, ClaudeBot, PerplexityBot, Google-Extended and others as deliberately welcome; Disallow only /charon and /agents/.'
+compliance_program:
+  published: false
+  note: >-
+    No SOC 2, ISO 27001, PCI DSS or similar certification is claimed anywhere on the site; the Privacy Policy
+    states the business sits under the Privacy Act 1988 turnover threshold and commits to the Australian
+    Privacy Principles voluntarily, and that GDPR applies where EU/UK personal data is handled. No Compliance
+    pointer is emitted.

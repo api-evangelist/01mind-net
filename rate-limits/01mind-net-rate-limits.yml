@@ -1,0 +1,53 @@
+generated: '2026-09-19'
+method: searched
+source: https://01mind.net/openapi.json
+docs:
+- https://01mind.net/failure-modes
+- https://01mind.net/catalogue
+- https://01mind.net/developers
+limit_count: 3
+summary: >-
+  01Mind publishes per-resource caps rather than a requests-per-second ceiling: a hard daily cap on email
+  sends per wallet, a monthly free-document allowance per API key, and a per-key gateway quota whose number
+  is not published but whose exhaustion signal is (429 + Retry-After, per the provider's failure-mode
+  catalog). No rate-limit headers are declared in the OpenAPI; remaining-allowance counts travel in the
+  response body of a successful render.
+rate_limits:
+- name: Email sends per wallet
+  scope: per-wallet
+  limit: 20
+  window: 24h
+  metric: email
+  burst: null
+  applies_to: ['POST /execute/{listingId} with listingId=email-send-action-api', A2A skill email-send-action-api]
+  source: agent card skill description and https://01mind.net/catalogue — "sends are capped at 20 per wallet per 24h"
+- name: Free document allowance per API key
+  scope: per-api-key
+  limit: 5
+  window: calendar month (resets on the 1st, UTC)
+  metric: rendered document
+  overage: 0.25 USDC per document via x402
+  applies_to: ['POST /execute/{listingId} with listingId=render-document', MCP tool render_document]
+  source: 'openapi /execute/{listingId} description; https://01mind.net/developers'
+  signal_in_body: RenderDocumentResult.freeDocumentsRemainingThisMonth, purchasedDocumentsRemaining, paidWith
+- name: Gateway quota per key per window
+  scope: per-api-key
+  limit: null
+  window: null
+  metric: request
+  exhaustion_status: 429
+  headers: [Retry-After]
+  source: https://01mind.net/failure-modes — FM-004 "Caller exceeds their key's quota within the current window. 429 with Retry-After returned by the gateway."
+  note: The number and window are not published anywhere found; the exhaustion behaviour is.
+size_and_time_limits:
+- {name: Request body on /execute, limit: 4 MB, exhaustion_status: 413, source: 'openapi /execute/{listingId} description'}
+- {name: Wallet-proof freshness, limit: signedAt within 10 minutes of the server clock, exhaustion_status: 401, source: 'openapi /execute/{listingId} description'}
+- {name: Templates per key, limit: unpublished, exhaustion_status: 409, source: 'openapi POST /document-templates'}
+- {name: Template size, limit: unpublished, exhaustion_status: 413, source: 'openapi POST /document-templates'}
+- {name: Bundle steps, limit: 2 to 8, source: 'openapi ToolGenerationRequestInput.recipe (bundle)'}
+- {name: api-call allowedParams, limit: 20, source: 'openapi ToolGenerationRequestInput.recipe (api-call) maxItems'}
+exhaustion:
+  status: 429
+  headers: [Retry-After]
+  media_type: application/json
+  note: Documented in the failure-mode catalog only; not observed live and not declared in the contract.

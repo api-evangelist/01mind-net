@@ -1,0 +1,62 @@
+generated: '2026-09-19'
+method: searched
+source: https://01mind.net/openapi.json
+docs:
+- https://01mind.net/developers
+probed:
+- {url: 'https://01mind.net/document-templates', status: 200, fetched: '2026-09-19'}
+- {url: 'https://01mind.net/execute/render-document', method: POST, status: 402, fetched: '2026-09-19', note: 'empty body; the paid twin of the sandbox route, confirming the route and the 402 challenge'}
+summary: >-
+  01Mind has no separate test environment or test-mode keys; production is the sandbox. Its rehearsal surface
+  is a free, unauthenticated dry-run route that performs the identical validation the paid call performs and
+  reports what would be produced without producing a file or consuming anything, plus a free API key with no
+  signup and a set of first-party document templates any caller can render against.
+test_vs_live:
+  separate_environment: false
+  key_prefixes: not published
+  note: One host, one key type. The dry run is the only "test mode".
+dry_run:
+  operation: 'POST /sandbox/execute/{listingId} (no operationId)'
+  cost: free — no key and no payment required
+  behaviour: >-
+    "Runs the identical validation the paid call runs and reports exactly what would be produced -- final
+    sanitised sheet names, block counts, and every warning -- without producing a file and without consuming
+    an allowance or a credit." For render-document it is "the real validator for blocks and sheets".
+  guarantee: 'A malformed payload on the paid route is also rejected before anything is consumed: "a mistake never costs you a document."'
+free_api_key:
+  operation: 'POST /keys (documented in prose; not declared in the OpenAPI paths)'
+  body: empty or {}
+  signup: none
+  identity_attached: none — "An API key is issued on request with no name, email address or identity attached to it" (privacy policy)
+  carries: 5 free rendered documents per month; ownership of saved templates; recognition on return visits
+  usage_check: 'GET /usage/{keyId} (documented in prose; live probe without a key returned 401)'
+fixtures:
+  first_party_document_templates:
+    source: https://01mind.net/document-templates
+    fetched: '2026-09-19'
+    note: Available to everyone without a key; each declares the placeholders it needs. Rendered with {templateId, values}.
+    templates:
+    - {templateId: invoice, name: Invoice, format: docx, placeholders: [clientAddress, clientName, dueDate, invoiceNumber, issueDate, lineItems, paymentInstructions, sellerContact, sellerName, total]}
+    - {templateId: report, name: Report, format: docx, placeholders: [date, findings, method, preparedBy, preparedFor, recommendation, summary, title]}
+    - {templateId: meeting-minutes, name: Meeting minutes, format: docx, placeholders: [actions, attendees, date, decisions, discussion, location, meetingTitle]}
+    - {templateId: statement-of-work, name: Statement of work, format: docx, placeholders: [client, date, deliverables, fees, outOfScope, projectName, scope, supplier]}
+  tool_recipe_examples:
+    source: https://01mind.net/tool-requests/format-guide
+    fetched: '2026-09-19'
+    note: Worked, literally-submittable recipe examples published by the provider (verbatim below).
+    examples:
+    - type: math-expression
+      recipe: {type: math-expression, expression: 'input.celsius * 9 / 5 + 32'}
+      testParams: {celsius: 23}
+    - type: api-call
+      recipe: {type: api-call, url: 'https://api.example.com/real-endpoint', allowedParams: [location]}
+      testParams: {location: Sydney}
+challenge_strings:
+  note: Exact EIP-191 personal_sign messages the contract requires; published verbatim in the OpenAPI.
+  collect: '01Mind: collect <listingId> as <walletAddress> at <signedAt>'
+  venue_apply: '01Mind Venue: apply to task {taskId} as {workerWallet}'
+  venue_close: '01Mind Venue: close research task {taskId}'
+test_values:
+  wallets: none published
+  payment: none published — x402 settles real USDC on Base mainnet (eip155:8453); no testnet or test facilitator is documented
+  note: No magic values, test cards or test tokens exist; the dry run is the whole rehearsal surface.

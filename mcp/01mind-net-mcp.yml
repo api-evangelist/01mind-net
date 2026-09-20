@@ -1,0 +1,112 @@
+generated: '2026-09-19'
+method: probed
+status: published
+source: https://01mind.net/mcp
+docs: https://01mind.net/developers
+summary: >-
+  01Mind operates ONE remote MCP server at https://01mind.net/mcp — the same host as its website, OpenAPI
+  and A2A endpoint. It is POST-only Streamable HTTP (a GET returns 405 {"error":"This server only accepts
+  POST for MCP requests."}), speaks MCP protocol version 2025-06-18, identifies itself as serverInfo
+  {name: 01Mind, version: 3.0.0}, and answers initialize and tools/list anonymously with three tools that
+  carry real inputSchemas. resources/list and prompts/list return -32601 Method not found. The server's own
+  initialize instructions say most catalogue listings are callable but deliberately not advertised as tools,
+  to keep the connection payload small, and that each paid tool call returns a real HTTP 402 x402 challenge
+  to be retried with a payment header. Anonymous tools/list succeeded, so authorship is knowable: the tool
+  names and descriptions are 01Mind-specific (render_document, save_document_template, list_offerings with
+  catalogue/documents/venue sections) and match no shared platform fingerprint — this is a provider-built
+  server, not a Wix/Shopify/Mintlify/WordPress-plugin surface.
+deployment:
+  mode: remote
+  endpoint: https://01mind.net/mcp
+  auth: none
+  verified: probed
+  note: >-
+    A hosted HTTPS endpoint an MCP client POSTs to directly; 01Mind ships no stdio package and documents no
+    npx/uvx install. auth is "none" in the connection sense — initialize and tools/list need no credential,
+    and no OAuth metadata is served on this host (/.well-known/oauth-authorization-server and
+    /.well-known/oauth-protected-resource both 404). Paid tool calls are gated by x402 PAYMENT (HTTP 402 then
+    retry with a payment header, USDC on Base), and render_document additionally accepts an optional
+    X-API-Key to draw on a free monthly allowance of five documents. That is an economic gate on invocation,
+    not an authentication scheme on the server.
+servers:
+- id: 01mind
+  name: 01Mind
+  endpoint: https://01mind.net/mcp
+  transport: streamable-http
+  http_methods: [POST]
+  auth: none
+  payment: x402 (USDC on Base, eip155:8453) per paid tool call; HTTP 402 challenge then retry with payment header
+  status: live
+  probe:
+    fetched: '2026-09-19'
+    initialize:
+      http_status: 200
+      protocol_version: '2025-06-18'
+      server_info: {name: 01Mind, version: 3.0.0}
+      capabilities: {tools: {listChanged: false}}
+      instructions: >-
+        Call tools/list for three tools, then list_offerings for the full catalogue -- most listings are
+        callable but deliberately not advertised, to keep what you pay for on connection small. Each tool
+        call requires real payment via the x402 protocol -- an unpaid call returns a real HTTP 402 with
+        payment requirements; retry the same tool call with a valid payment header attached. Paying accepts
+        the 01Mind Terms of Sale (version 2026-09-15): https://01mind.net/terms
+    tools_list:
+      http_status: 200
+      content_type: application/json
+      tool_count: 3
+      file: mcp/01mind-net-mcp-tools.json
+    resources_list: {http_status: 200, error: '-32601 Method not found: resources/list'}
+    prompts_list: {http_status: 200, error: '-32601 Method not found: prompts/list'}
+    get_request: {http_status: 405, body: '{"error":"This server only accepts POST for MCP requests."}'}
+  authorship: provider
+  tools:
+  - name: list_offerings
+    title: What 01Mind sells
+    read_only: true
+    cost: free
+    input_schema:
+      section: 'string enum [catalogue, documents, venue, all] (optional)'
+    description: >-
+      Free. Everything 01Mind offers, on demand rather than loaded into your context upfront. section:
+      "catalogue" (every purchasable listing with its price and the exact tool name to call it by -- most are
+      callable but not advertised), "documents" (the full render_document schema, limits and templates),
+      "venue" (open live-research studies you can take part in), or "all".
+  - name: render_document
+    title: Render a document
+    read_only: false
+    cost: 'free for the first 5 documents a month on an X-API-Key, then $0.25 per document via x402'
+    input_schema:
+      format: 'string enum [docx, xlsx]'
+      filename: string (optional)
+      walletAddress: string (optional; the paying wallet when drawing on purchased credit)
+      note: >-
+        The live inputSchema declares only format, filename and walletAddress as properties; the content
+        payload (exactly one of blocks / markdown / sheets / templateId+values) is described in the tool
+        description and in the OpenAPI RenderDocumentInput schema, not in the MCP inputSchema.
+    description: >-
+      Produce a real .docx or .xlsx file from structured content and return it as base64. Send format
+      ("docx"|"xlsx") plus exactly ONE of: blocks, markdown, sheets, or templateId + values. Optional
+      filename. Free for the first 5 documents a month on an API key sent as X-API-Key, then $0.25 per
+      document via x402 -- an unpaid call over that returns a real HTTP 402 challenge. Dry run free at POST
+      /sandbox/execute/render-document. Full schema and limits: call list_offerings with section "documents".
+  - name: save_document_template
+    title: Save a document template
+    read_only: false
+    cost: free (requires X-API-Key)
+    input_schema:
+      templateId: string (optional)
+      name: string (optional)
+      format: 'string enum [docx, xlsx]'
+    description: >-
+      Free, and does not use your document allowance. Store a reusable layout once so you stop re-sending it:
+      send format, blocks (or sheets), an optional templateId, with {{placeholders}} where values go, and a
+      table may carry rowsFrom:"listName" to repeat one row over an array. Then render with { templateId,
+      values }. Requires an API key (X-API-Key).
+  unadvertised_tools: >-
+    The server's instructions and list_offerings description state that the other catalogue listings (email
+    send, legal research, the reference packs, venue intelligence) are callable as tools "by the exact tool
+    name" returned from list_offerings, but they are not enumerated by tools/list. Only the three tools above
+    were returned by the live tools/list and only those are recorded here; the hidden tool names were not
+    invoked to discover them, since every such call is a paid x402 call.
+web_mcp: null
+clients_documented: []

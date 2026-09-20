@@ -1,0 +1,13 @@
+generated: '2026-09-19'
+method: searched
+source: registry searches 2026-09-19
+package_count: 0
+packages: []
+searched:
+- {registry: npm, query: 'https://registry.npmjs.org/-/v1/search?text=01mind', result: 0 packages}
+- {registry: pypi, query: 'https://pypi.org/pypi/01mind/json', status: 404}
+- {registry: github, query: 'https://api.github.com/search/repositories?q=01mind+in:name,description', result: 0 repositories}
+- {registry: github-user, query: 'https://api.github.com/users/01mind', result: 'an unrelated empty user account created 2019-11-24 with 0 public repositories, no blog, no bio — NOT this provider; not linked'}
+note: >-
+  01Mind publishes no client library, CLI or SDK in any registry searched, and its developers page references
+  none — the documented way in is raw HTTP (OpenAPI), MCP or A2A. No Packages or SDKs pointer is emitted.

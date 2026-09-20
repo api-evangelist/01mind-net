@@ -1,0 +1,96 @@
+generated: '2026-09-19'
+method: derived
+source: openapi/01mind-net-openapi.json
+probed: true
+docs: https://01mind.net/failure-modes
+format: json-error-object
+envelope:
+  media_type: application/json
+  fields:
+  - name: error
+    description: Short machine/human string naming the failure ("Not found", "Upstream execution failed").
+  - name: detail
+    description: Optional longer explanation. On 402 it names the price, the free-allowance path and the wallet-proof path.
+  observed:
+  - {status: 404, body: '{"error":"Not found"}', url: 'https://01mind.net/.well-known/security.txt', note: 'The generic 404 for every unknown path — 21 bytes, application/json, never an HTML shell.'}
+  - {status: 402, body: '{"error":"Upstream execution failed","detail":"Rendering a document costs $0.25, or is free on an API key''s monthly allowance. Either create a free key at POST /keys and send it as X-API-Key, or purchase render-document and execute with walletAddress, signedAt and a signature proving you control the wallet that paid."}', url: 'POST https://01mind.net/execute/render-document (empty body)'}
+  - {status: 405, body: '{"error":"This server only accepts POST for MCP requests."}', url: 'GET https://01mind.net/mcp'}
+  - {status: 401, url: 'GET https://01mind.net/usage/probe', note: 'No API key sent; body not recorded.'}
+  note: >-
+    Not RFC 9457. No type URI, no title/status/instance fields, and no error-code registry inside the REST
+    envelope. The JSON-RPC surfaces (/mcp, /a2a) use JSON-RPC 2.0 error objects instead — observed -32601
+    Method not found and -32001 Task not found (the A2A-defined TaskNotFoundError).
+problem_types:
+- status: 400
+  title: Invalid input, signature or state
+  occurrences: 5
+  source_operations: [applyToVenueTask, closeResearchTask, converseWithResearch, attachTopUpToCampaign, 'POST /execute/{listingId}']
+  causes:
+  - Invalid EIP-191 signature, wallet not verified-live in 01Mind's Agent Verification Registry, malformed researchAnswer, task not open, or an old paid task (paid hiring was removed 14 Sept 2026).
+  - Invalid campaign or unapproved top-up (attachTopUpToCampaign).
+  - Malformed execute payload — "Invalid input. Nothing was consumed."
+  remediation: Fix the payload; the spec states a malformed payload is rejected before anything is consumed, so a 400 never costs a document, credit or allowance.
+- status: 401
+  title: Missing API key, or a wallet proof that failed
+  occurrences: 2
+  source_operations: ['POST /execute/{listingId}', 'POST /document-templates']
+  causes:
+  - No X-API-Key where one is required (saving a template).
+  - A wallet proof was sent and failed — wrong message, expired signedAt (must be within 10 minutes of the server clock), or a signature already used. The spec says the response names the reason and the exact message to sign.
+  remediation: Re-sign the exact challenge string with a fresh signedAt; each signature works once.
+- status: 402
+  title: Payment required
+  occurrences: 2
+  source_operations: ['POST /execute/{listingId}', spendCampaignTokens]
+  causes:
+  - No free allowance left and no purchased credit for this wallet (execute).
+  - Insufficient campaign balance, top-up required (internal spend endpoint).
+  remediation: Pay through x402 (retry with a payment header) or send an X-API-Key with remaining monthly allowance. Observed live with the body quoted above.
+- status: 403
+  title: Blocked pending legal review, or no settled purchase by a proven wallet
+  occurrences: 1
+  source_operations: ['POST /execute/{listingId}']
+  remediation: The response says how to prove the wallet. A listing under legal review cannot be executed until cleared.
+- status: 404
+  title: Not found, or not yours
+  occurrences: 12
+  source_operations: [getToolGenerationRequest, replyToToolGenerationApproval, reportToolProductionFault, getMarketingCampaign, pauseCampaignForFault, resumeCampaignAfterFaultVerifiedFixed, completeCampaign, replyToTokenTopUp, getVenueTask, 'DELETE /document-templates/{templateId}']
+  note: Deleting a template you do not own reports 404 rather than 403 by design — the spec says confirming somebody else's template exists is itself a small leak.
+- status: 409
+  title: templateId taken, or per-key template limit reached
+  occurrences: 1
+  source_operations: ['POST /document-templates']
+- status: 410
+  title: Gone — a retired paid task
+  occurrences: 1
+  source_operations: [getVenueTask]
+  note: An old paid task from before 14 Sept 2026, when paid hiring was removed. Kept as a record, never served as open work. A real retirement signal in the contract, though no Sunset header accompanies it.
+- status: 413
+  title: Request body or document exceeds a stated limit
+  occurrences: 2
+  source_operations: ['POST /execute/{listingId}', 'POST /document-templates']
+  note: Bodies up to 4 MB are accepted on /execute; larger returns a real 413 rather than a dropped connection. The message names the limit and what was seen. Nothing is consumed.
+- status: 429
+  title: Rate limit exceeded
+  occurrences: 0
+  source: https://01mind.net/failure-modes (FM-004)
+  headers: [Retry-After]
+  note: Not declared in the OpenAPI; documented only in the provider's failure-mode catalog — "Caller exceeds their key's quota within the current window. 429 with Retry-After returned by the gateway."
+- status: 405
+  title: Method not allowed
+  occurrences: 0
+  note: Observed on GET /mcp; not declared in the contract.
+failure_mode_catalog:
+  source: https://01mind.net/failure-modes
+  status: 200
+  fetched: '2026-09-19'
+  note: A provider-published, machine-readable failure catalog served free and unauthenticated (documented in prose, absent from the OpenAPI).
+  entries:
+  - {code: FM-001, name: Schema mismatch, description: "Caller payload does not match the listing's declared input schema.", mitigation: Schema validation shunt rejects before execution.}
+  - {code: FM-002, name: Payment not settled, description: x402 payment initiated but not confirmed before execution requested., mitigation: Execution blocked until payment confirmation received.}
+  - {code: FM-003, name: Degraded listing invoked, description: Caller attempts to purchase/execute a listing currently marked Degraded., mitigation: Purchase blocked until Charon re-verifies.}
+  - {code: FM-004, name: Rate limit exceeded, description: "Caller exceeds their key's quota within the current window.", mitigation: 429 with Retry-After returned by the gateway.}
+  - {code: FM-005, name: Unsafe tool generation request, description: A Tool Generation Engine request could plausibly impersonate or deceive another party., mitigation: Charon rejects immediately and logs for monthly reporting.}
+json_rpc_errors:
+  - {code: -32601, message: 'Method not found: <method>', surfaces: [/mcp, /a2a]}
+  - {code: -32001, message: Task not found, surfaces: [/a2a], standard: A2A TaskNotFoundError}

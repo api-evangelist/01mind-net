@@ -1,0 +1,180 @@
+generated: '2026-09-19'
+method: searched
+source: https://01mind.net/openapi.json
+derived_from: openapi/01mind-net-openapi.json
+docs:
+- https://01mind.net/developers
+- https://01mind.net/terms
+- https://01mind.net/failure-modes
+base_url: https://01mind.net
+media_type: application/json
+auth:
+  style: >-
+    Three credentials, none of them a bearer token: (1) an optional X-API-Key issued free by POST /keys with
+    no signup, which identifies a caller across visits and carries the free document allowance; (2) an
+    EIP-191 personal_sign wallet proof (walletAddress + signedAt + signature over a documented challenge
+    string) that lets the wallet which paid collect what it bought; (3) x402 payment itself — on a paid route
+    the server answers 402 and the retry carries a signed payment header. X-Console-Secret is internal-only
+    and never issued.
+  detail: authentication/01mind-net-authentication.yml
+idempotency:
+  supported: false
+  coverage: none
+  mechanism: null
+  header: null
+  scope: []
+  retention: undocumented
+  description: >-
+    No Idempotency-Key header, parameter or body field exists on any of the 18 write operations, and the
+    docs describe none. What the contract does document is REPLAY PROTECTION on collection: each EIP-191
+    collect signature "works once" and signedAt must be within 10 minutes of the server clock, so a captured
+    request cannot be replayed by a third party. That is not idempotency — a legitimate retry after a timeout
+    needs a fresh signature and, if the first call did succeed, consumes a second purchased document, question
+    or email ("each settled purchase covers exactly one"). The provider's mitigation is on the validation side:
+    a malformed payload is rejected before anything is consumed, and a failed request does not use up a
+    purchase (Terms 5.4).
+  gaps:
+  - No idempotency key on POST /execute/{listingId}, the one operation that spends money or credit.
+  - No idempotency key on POST /tool-requests, POST /document-templates or the Venue write operations.
+  - No documented safe-retry guidance for an ambiguous outcome (timeout after a successful execute).
+dry_run_mode:
+  supported: true
+  status: documented
+  mechanism: dedicated sandbox route
+  surfaces:
+  - operation: 'POST /sandbox/execute/{listingId} (no operationId)'
+    docs: https://01mind.net/openapi.json
+    cost: free, no key, no payment
+    description: >-
+      Quoted from the contract: "Runs the identical validation the paid call runs and reports exactly what
+      would be produced -- final sanitised sheet names, block counts, and every warning -- without producing
+      a file and without consuming an allowance or a credit." The developers page calls it "a free dry-run
+      that validates a request and reports exactly what it would produce without charging or returning a
+      file." Live probe: the route exists (POST /execute/render-document answered 402 on the paid twin;
+      the sandbox twin was not invoked).
+  - operation: getToolRequestFormatGuide
+    description: A read-only pre-flight for Tool Generation Engine submissions — the exact recipe format and worked examples, "check this before submitting, not just by failing first."
+  - operation: 'GET /venue-intelligence/quick-check (undeclared in the spec; live 200)'
+    description: Free single-venue summary of the paid venue-intelligence listing, offered "before you buy".
+reversibility:
+  grade: documented
+  docs: https://01mind.net/terms
+  note: >-
+    A reversal path exists for the money side and is stated in the Terms of Sale, but no reversal WINDOW is
+    stated for a completed delivery, so the grade is documented (0.4), not verified. Digital goods delivered
+    in-band cannot be un-delivered; what the terms offer is a refund when delivery fails. Nothing below asserts
+    a window the provider has not written down.
+  write_surfaces:
+  - operation: 'POST /execute/{listingId} (x402 purchase-and-collect)'
+    action: Spend a purchased credit or the free allowance to render a document, ask a legal-research question or send an email
+    reversal: refund by email for non-delivery
+    reversal_operation: null
+    window: null
+    stated_terms:
+    - clause: '5.4'
+      verbatim: 'Some purchases are used up when used: one purchase covers one rendered document, one legal research question or one email. A request that fails does not use up the purchase.'
+    - clause: '6.2'
+      verbatim: 'If you paid and did not receive what you bought, or it arrived broken, or it can no longer be delivered, email us at 01mind@01mind.net quoting the transaction. We will deliver it, or refund the price in USDC to the wallet that paid, within 10 business days of your email.'
+    - clause: '6.4'
+      verbatim: 'We do not give refunds for a change of mind. That does not limit clause 6.1 or 6.2.'
+    - clause: '5.3'
+      verbatim: 'A purchase does not expire. A reference document or report you have bought can be collected again, by the wallet that paid, at no further charge.'
+    grade: documented
+    note: >-
+      The "10 business days" is the provider's fulfilment time after the buyer's email, not a window within
+      which the buyer must act; no deadline for raising a non-delivery claim is stated, and a purchase "does
+      not expire". No API operation performs the refund — it is an email process to 01mind@01mind.net.
+  - operation: 'POST /execute/{listingId} with listingId=email-send-action-api'
+    action: Send a real email on the buyer's behalf
+    reversal: none documented
+    window: null
+    grade: none
+    note: No recall or cancel is documented; a sent email is a one-way door. Every send carries a server-added disclosure footer naming 01Mind and the sending wallet (Terms 8.2).
+  - operation: closeResearchTask
+    action: Permanently close a live-research study and compute its aggregate
+    reversal: none
+    window: null
+    grade: none
+    note: The provider's own summary states "Close is the only state change after open. Cannot be undone."
+  - operation: 'DELETE /document-templates/{templateId} (no operationId)'
+    action: Delete one of the caller's own templates
+    reversal: none documented
+    window: null
+    grade: none
+    note: No restore or trash window is documented. First-party starter templates cannot be deleted.
+  - operation: submitToolGenerationRequest
+    action: Ask Charon to build and list a tool
+    reversal: none documented
+    window: null
+    grade: none
+    note: >-
+      No cancel or withdraw operation exists. Safe-tier requests are auto-built "for free the moment a valid
+      recipe is supplied"; a built tool becomes a purchasable listing immediately. reportToolProductionFault
+      can mark a built tool Degraded (blocking purchase) but does not remove it.
+  - operation: applyToVenueTask / converseWithResearch
+    action: Record research answers against a study
+    reversal: none documented
+    window: null
+    grade: none
+  - operation: 'campaigns / token-topups (9 operations)'
+    action: Internal marketing-spend controls
+    reversal: pauseCampaignForFault freezes (does not forfeit) a balance; resumeCampaignAfterFaultVerifiedFixed reverses the pause
+    grade: na
+    note: Internal-only (X-Console-Secret, never issued to customers), so out of scope for an external agent.
+pagination:
+  style: none
+  note: >-
+    No list operation declares page, cursor, limit or offset parameters. GET /venue/tasks returns every open
+    study in one response; GET /document-templates returns firstParty[] and yours[] whole; GET /activity
+    (undeclared) returns a recent window.
+filtering_and_sorting:
+  supported: false
+field_expansion:
+  supported: false
+sparse_fieldsets:
+  supported: false
+metadata:
+  supported: false
+request_id_tracing:
+  supported: false
+  note: >-
+    No request-id or correlation-id header is declared or documented. Responses carry rndr-id and cf-ray,
+    which are Render's and Cloudflare's platform trace ids, not a contract the provider commits to.
+    RenderDocumentResult.sha256 is offered instead as the dispute anchor: "Checksum of the returned bytes, so
+    a delivery dispute can be settled without either side retaining the document."
+versioning:
+  scheme: unversioned paths; info.version 2.0.0; server/card version 3.0.0
+  detail: lifecycle/01mind-net-lifecycle.yml
+errors:
+  envelope: '{"error": string, "detail"?: string} — not RFC 9457'
+  media_type: application/json
+  json_rpc: JSON-RPC 2.0 error objects on /mcp and /a2a
+  detail: errors/01mind-net-problem-types.yml
+rate_limit_signaling:
+  exhaustion_status: 429
+  headers:
+  - 'Retry-After (per GET /failure-modes FM-004; not declared in the OpenAPI)'
+  quota_headers: none declared
+  quota_in_body: RenderDocumentResult.freeDocumentsRemainingThisMonth and purchasedDocumentsRemaining
+  detail: rate-limits/01mind-net-rate-limits.yml
+payment:
+  protocol: x402
+  asset: USDC
+  network: Base (eip155:8453)
+  flow: >-
+    Call a paid route; receive HTTP 402 with payment requirements; retry the same call with a signed payment
+    header. Through the REST routes the payment leg is POST /purchase/{listingId} (documented in prose, absent
+    from the spec) and the collection leg is POST /execute/{listingId} with the wallet proof. Through MCP and
+    A2A, payment and delivery happen in the same exchange (Terms 5.1). Paying accepts the Terms of Sale in
+    force at that moment (Terms 3.2).
+  wallet_proof:
+    signature: EIP-191 personal_sign
+    challenge: '01Mind: collect <listingId> as <walletAddress> at <signedAt>'
+    signed_at: ISO 8601, within 10 minutes of the server clock
+    single_use: true
+  other_challenge_strings:
+  - '01Mind Venue: apply to task {taskId} as {workerWallet}'
+  - '01Mind Venue: close research task {taskId}'
+audience_split:
+  external: 19 operations (X-API-Key, wallet proof, or public)
+  internal: 9 operations under X-Console-Secret (campaigns, token top-ups) that the contract says are never issued to customers or external agents — published in the public spec regardless.

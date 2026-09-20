@@ -1,0 +1,125 @@
+generated: '2026-09-19'
+method: searched
+probe: true
+source: https://01mind.net/privacy
+signals:
+  ai_transparency:
+    url: https://01mind.net/terms
+    section: '7. What you get, AI, and advice'
+    evidence:
+    - source: https://01mind.net/terms
+      http_status: 200
+      fetched: '2026-09-19'
+      quote: >-
+        "7.1 Many of our products are written with AI (Anthropic's Claude), and each one says so: 'Written
+        with AI (Anthropic's Claude). Check any factual claim independently before relying on it.' ...
+        7.3 Charon, Orpheus and the other agents you meet at 01Mind are AI agents, not people."
+    - source: https://01mind.net/catalogue
+      http_status: 200
+      fetched: '2026-09-19'
+      quote: 'Each AI-written listing carries the label "Written with AI (Anthropic''s Claude). Check any factual claim independently before relying on it."'
+    note: >-
+      A published, contractual disclosure that (a) named products are AI-generated, labelled per item, and
+      (b) the counterparties an agent or person interacts with are AI agents, not humans. This is the
+      substance of an AI-interaction and AI-content transparency statement, carried in the Terms of Sale
+      rather than on a dedicated /ai page (/ai and /ai/transparency both 404).
+  data_subject_request:
+    url: https://01mind.net/privacy
+    section: 'Getting access, correction, or deletion of your information'
+    channel: 01mind@01mind.net
+    stated_sla: 'We will respond to your request within 30 days.'
+    rights_named: [access, correction, deletion, portability (EU/UK), objection and restriction (EU/UK), withdrawal of consent (EU/UK)]
+    escalation: Office of the Australian Information Commissioner (oaic.gov.au) for unresolved privacy complaints
+    evidence:
+    - source: https://01mind.net/privacy
+      http_status: 200
+      fetched: '2026-09-19'
+      quote: >-
+        "If you would like to update, get access to, or delete information we have about you, please email
+        01mind@01mind.net and tell us what you would like changed or updated. We will respond to your request
+        within 30 days."
+    note: >-
+      A documented request process with a channel, a response period and the retention limit that constrains
+      it (invoices kept five years by law). It is a section of the privacy policy, not a dedicated intake page
+      or form (/privacy/requests 404), and no API endpoint exists for it.
+  subprocessors:
+    url: https://01mind.net/privacy
+    section: 'Sending information overseas'
+    dated: '2026-09-15'
+    entries:
+    - {vendor: Render, purpose: servers and stored records, location: Singapore}
+    - {vendor: Anthropic, purpose: Claude models powering the AI agents, location: United States}
+    - {vendor: Tavily, purpose: public web search, location: United States}
+    - {vendor: Microsoft, purpose: business email}
+    - {vendor: Coinbase, purpose: wallet and payment infrastructure behind cryptocurrency purchases}
+    - {vendor: Wise, purpose: bank accounts an invoice is paid into}
+    - {vendor: Neynar, purpose: reaching other software agents / developer-community presence}
+    - {vendor: Telegram, purpose: reaching other software agents / developer-community presence}
+    evidence:
+    - source: https://01mind.net/privacy
+      http_status: 200
+      fetched: '2026-09-19'
+      quote: >-
+        "Singapore — our servers and stored records, hosted for us by Render. United States — Anthropic, whose
+        Claude models power our AI agents, and Tavily, which we use to search the public web. Microsoft — our
+        business email. ... Coinbase — the wallet and payment infrastructure behind cryptocurrency purchases,
+        and Wise, which provides the bank accounts an invoice is paid into. Neynar and Telegram — used where
+        we reach other software agents."
+    note: >-
+      A named third-party list with purposes and, for the data-hosting vendors, locations, on a page dated
+      15 September 2026. It is prose inside the privacy policy rather than a standalone subprocessor table
+      (/legal/subprocessors and /subprocessors both 404), and it also states that no third-party fonts,
+      analytics, advertising or tracking scripts are loaded.
+probed_absent:
+- signal: sbom
+  urls:
+  - {url: 'https://01mind.net/security/sbom', status: 404}
+  note: No bill of materials published. Never derived — search only.
+- signal: support_lifetime
+  urls:
+  - {url: 'https://01mind.net/docs/versioning', status: 404}
+  note: No stated support period for the API or for the two end-user products ("in build", not yet available).
+- signal: accessibility_conformance
+  urls:
+  - {url: 'https://01mind.net/accessibility', status: 404}
+  - {url: 'https://01mind.net/accessibility/vpat', status: 404}
+  - {url: 'https://01mind.net/vpat', status: 404}
+- signal: training_data_summary
+  note: The terms disclose that products are written with Anthropic's Claude; no training-data summary of 01Mind's own is published, and none is expected from a model consumer.
+- signal: global_privacy_control
+  note: >-
+    No published statement that Sec-GPC or a universal opt-out signal is honored. Not tested by sending a
+    header. The policy states no analytics, advertising or tracking scripts are loaded and personal
+    information is not sold — which removes the sale/share the signal would opt out of, but is not a GPC
+    statement.
+- signal: data_residency
+  urls:
+  - {url: 'https://01mind.net/docs/data-residency', status: 404}
+  note: >-
+    The privacy policy discloses location — "Our servers are in Singapore. Some processing happens in the
+    United States. 01Mind operates from Australia." — but offers no residency choice or region selection, so
+    this is recorded as a location disclosure, not a data-residency capability.
+- signal: incident_notification
+  urls:
+  - {url: 'https://01mind.net/legal/dpa', status: 404}
+  - {url: 'https://01mind.net/dpa', status: 404}
+  note: >-
+    No DPA and no stated breach-notification SLA. The policy does state that for EU clients the provider will
+    enter the European Commission's Standard Contractual Clauses on request, and that no Article 27 EU
+    representative has been appointed.
+- signal: age_assurance
+  note: Not documented; the service is sold to software agents and businesses.
+- signal: notice_and_action
+  urls:
+  - {url: 'https://01mind.net/legal/report-content', status: 404}
+  note: >-
+    No content-reporting page. The Terms 8.1-8.3 describe acceptable use and the provider's right to decline,
+    limit or block a request, wallet or key, and the contact page is the only channel.
+- signal: transparency_report
+  urls:
+  - {url: 'https://01mind.net/transparency', status: 404}
+- signal: exit_assistance
+  note: >-
+    No export or switching documentation. The policy grants EU/UK persons a portable copy of their personal
+    data on request; rendered documents are returned in-band and never stored, so there is no document store
+    to export.

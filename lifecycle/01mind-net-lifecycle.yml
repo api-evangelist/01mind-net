@@ -1,0 +1,64 @@
+generated: '2026-09-19'
+method: searched
+source: https://01mind.net/openapi.json
+derived_from: openapi/01mind-net-openapi.json
+docs:
+- https://01mind.net/terms
+versioning:
+  scheme: unversioned paths; version carried in the document and the server identity
+  current_version: 2.0.0 (OpenAPI info.version) / 3.0.0 (MCP serverInfo.version and agent card version)
+  spec_url: https://01mind.net/openapi.json
+  base_url: https://01mind.net
+  policy_published: false
+  note: >-
+    Paths carry no version segment. The OpenAPI says 2.0.0 while the MCP server and the A2A card both say
+    3.0.0, so the three surfaces do not share a version number. The servers[] description records that an
+    earlier revision of the spec listed http://localhost:4103 as its server, and that it was corrected. The
+    Terms of Sale are versioned by date (currently 2026-09-15) and clause 11.1 states an update applies only
+    to purchases made after publication.
+deprecation:
+  policy_published: false
+  sunset_header: false
+  deprecation_header: false
+  rfc8594: false
+  deprecated_operations: []
+  documented_retirements:
+  - what: Paid Venue tasks (bounty hiring)
+    retired: '2026-09-14'
+    evidence: >-
+      openapi/01mind-net-openapi.json — listOpenVenueTasks summary "01Mind no longer runs paid tasks (removed
+      14 Sept 2026)"; getVenueTask declares 410 "An old paid task from before 14 Sept 2026, when paid hiring
+      was removed. It is kept as a record but never served as open work."; VenueTask.bountyUsd "Always 0".
+    note: >-
+      A real, dated retirement recorded inside the contract with a 410 Gone response for the retired records.
+      There was no advance deprecation marking, no Sunset header and no policy page — the retirement is
+      documented after the fact, in the spec that replaced the surface.
+  note: >-
+    Zero operations carry deprecated: true. No deprecation or versioning policy page exists on the site
+    (/changelog 404, /status 404, /docs 404). No Deprecation pointer is emitted.
+status_page:
+  url: null
+  probed: [{url: 'https://01mind.net/status', status: 404}]
+  live_signal:
+    url: https://01mind.net/latency-beacon
+    status: 200
+    observed: '{"latencyMs":0,"scope":"single-region, same-process request latency only -- not multi-availability-zone triangulation","measuredAt":"2026-09-19T21:52:43.067Z"}'
+    note: >-
+      A self-reported, single-process latency beacon, not a status page — it says so itself. Also
+      GET /listings/{listingId}/status returns a per-listing Active/Degraded flag (observed
+      {"listingId":"render-document","status":"Active"}). Neither is an incident history or an uptime
+      commitment, so no StatusPage pointer is emitted.
+sla:
+  published: false
+  note: >-
+    No uptime target. The Terms of Sale commit to remedy timelines instead: deliver or refund within 10
+    business days of an email for non-delivery (6.2), complaint response within 10 business days (11.2).
+changelog:
+  published: false
+  probed: [{url: 'https://01mind.net/changelog', status: 404}]
+  dated_signals:
+  - {date: '2026-09-15', what: Terms of Sale and Privacy Policy version date}
+  - {date: '2026-09-14', what: Paid Venue tasks removed (from the contract)}
+  - {date: '2026-09-03', what: sitemap lastmod for / and /products}
+  - {date: '2026-09-02', what: sitemap lastmod for /developers, /catalogue, /contact}
+  note: No changelog artifact is written; the dated signals above are the only change history the provider publishes.

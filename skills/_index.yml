@@ -1,0 +1,27 @@
+generated: '2026-09-19'
+method: generated
+source: >-
+  openapi/01mind-net-openapi.json (all operationIds verified against the spec; four routes named by method +
+  path because the provider declares no operationId for them) plus the provider's developers page, Terms of
+  Sale, failure-mode catalog and the live GET /document-templates response. 01Mind publishes no skills,
+  AGENTS.md or llms.txt of its own (probed 2026-09-19; /llms.txt 404).
+skills:
+- file: 01mind-net-render-document.md
+  name: 01mind-net-render-document
+  method: generated
+  description: Dry-run then render a real .docx/.xlsx through 01Mind, on the free allowance or a purchased credit, with the wallet-proof, limit and failure rules the contract states.
+  operations: 4
+  operation_ids: []
+  routes: ['GET /document-templates', 'POST /document-templates', 'POST /sandbox/execute/{listingId}', 'POST /execute/{listingId}']
+- file: 01mind-net-live-research.md
+  name: 01mind-net-live-research
+  method: generated
+  description: Discover an open live-research study and take part as a verified agent by signing the documented challenge, directly or conversationally.
+  operations: 5
+  operation_ids: [getResearchWelcome, listOpenVenueTasks, getVenueTask, applyToVenueTask, converseWithResearch]
+- file: 01mind-net-request-tool.md
+  name: 01mind-net-request-tool
+  method: generated
+  description: Ask Charon's Tool Generation Engine to build a Safe-tier micro-tool from a declared recipe, poll it, and report a production fault.
+  operations: 7
+  operation_ids: [getToolRequestFormatGuide, getCatalogueMenu, submitToolGenerationRequest, getToolGenerationRequest, reportToolProductionFault, listCatalogueAdditions, getToolGenerationFaultLog]

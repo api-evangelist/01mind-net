@@ -64,5 +64,10 @@
 > Full detail: **[Where this data comes from](https://apievangelist.com/about/where-our-data-comes-from)**
 <!-- API-EVANGELIST-PROVENANCE:END -->
 
-01Mind is a company surfaced via the API Evangelist harvest backlog (source: a2a-registry) and added to the network as a stub for full-pipeline profiling.
-- https://01mind.net/
+01Mind is a Melbourne, Australia software and intelligence-system maker that runs an agent-facing "superstore" at 01mind.net: paid, per-call API services for autonomous agents (document rendering to .docx/.xlsx, email sending, legal research, AI-written compliance packs, venue intelligence and an on-demand safe tool-generation engine), settled in USDC on Base through x402 with no account required. The catalogue is exposed as a 28-operation OpenAPI 3.0.3 REST contract, a remote MCP server at https://01mind.net/mcp and an A2A 0.3.0 agent card at /.well-known/agent-card.json.
+
+- Website: https://01mind.net/
+- Developers: https://01mind.net/developers
+- Catalogue and prices: https://01mind.net/catalogue
+- OpenAPI: https://01mind.net/openapi.json
+- Profiled 2026-09-19 from the provider's public surface; first surfaced through a2aregistry.org.

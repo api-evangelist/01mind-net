@@ -1,0 +1,101 @@
+generated: '2026-09-19'
+method: derived
+source: openapi/01mind-net-openapi.json
+docs: https://01mind.net/terms
+summary: >-
+  Derived from the 10 component schemas, the inline request/response objects and the identity model the
+  Terms of Sale describe. Two roots: the WALLET (the buyer's identity — "the wallet that pays is how we know
+  the buyer", Terms 3.3) and the LISTING (a catalogue item identified by listingId, the same id used as an
+  A2A skill id and as the /execute path parameter). A Purchase joins the two and is what /execute draws down.
+  There are no $ref-embedded links between top-level schemas — the contract links by id field (requestId,
+  campaignId, taskId, templateId, listingId, walletAddress) and returns whole objects, so a client resolves
+  the graph with follow-up calls; there is no expansion parameter.
+id_style:
+  format: opaque strings; documented prefixes on some
+  prefixes:
+  - {entity: VenueTask, example: 'venue_...', source: 'openapi examples'}
+  - {entity: ResearchConversation, example: 'rconv_...', source: 'openapi examples'}
+  - {entity: Listing (Charon-built), example: 'dyn-<hex>', source: 'GET /activity'}
+  - {entity: Listing (first-party), example: 'render-document', note: 'human-readable slug'}
+  - {entity: Wallet, example: '0x... (EVM address)'}
+  - {entity: Purchase, example: '0x... transaction hash on Base'}
+entities:
+- name: Wallet
+  description: An EVM address on Base. The buyer's identity for every purchase; proves itself with EIP-191 signatures. Also the participant identity on the research Venue, gated by 01Mind's Agent Verification Registry.
+  schemas: []
+  relationships:
+  - {has_many: Purchase, via: walletAddress}
+  - {has_many: VenueApplication, via: workerWallet}
+  - {has_many: VenueTask, via: posterWallet, note: as poster}
+- name: ApiKey
+  description: A free, identity-less key issued by POST /keys. Carries the monthly free-document allowance and owns saved templates.
+  schemas: []
+  relationships:
+  - {has_many: DocumentTemplate, via: X-API-Key ownership}
+  - {has_many: ToolGenerationRequest, via: X-API-Key on submit}
+- name: Listing
+  description: A purchasable catalogue item (first-party or Charon-built). Status Active or Degraded; may carry a legalReviewFlag.
+  schemas: []
+  relationships:
+  - {has_many: Purchase, via: listingId}
+  - {belongs_to: ToolGenerationRequest, via: built tool, note: 'only for Charon-built listings'}
+- name: Purchase
+  description: 'A settled x402 payment: transaction, listing, paying wallet, price, time and terms version (Terms 3.5). Metered listings are consumed one unit per execute; reference documents are collectable again at no charge.'
+  schemas: []
+  relationships:
+  - {belongs_to: Wallet, via: walletAddress}
+  - {belongs_to: Listing, via: listingId}
+- name: RenderedDocument
+  description: The output of executing render-document. Never stored; returned as base64 with a sha256.
+  schemas: [RenderDocumentInput, RenderDocumentResult]
+  relationships:
+  - {belongs_to: DocumentTemplate, via: templateId, note: optional}
+  - {belongs_to: Purchase, via: walletAddress, note: 'when paidWith is purchased'}
+  - {belongs_to: ApiKey, via: X-API-Key, note: 'when paidWith is free'}
+- name: DocumentTemplate
+  description: A saved docx/xlsx layout with {{placeholders}}; first-party starters plus per-key templates.
+  schemas: []
+  relationships:
+  - {belongs_to: ApiKey, via: owner}
+  - {has_many: RenderedDocument, via: templateId}
+- name: ToolGenerationRequest
+  description: A request for Charon to build a tool from a declared recipe (api-call, math-expression or bundle), with a classification, decision and validation status.
+  schemas: [ToolGenerationRequestInput, ToolGenerationRequestResult, ToolGenerationRequest]
+  relationships:
+  - {belongs_to: Wallet, via: walletAddress, note: optional}
+  - {has_many: FaultRecord, via: affectedItem}
+  - {has_one: Listing, via: built tool}
+- name: FaultRecord
+  description: A build or production fault with severity, recurrence count and status.
+  schemas: [FaultRecord]
+  relationships:
+  - {belongs_to: ToolGenerationRequest, via: affectedItem}
+- name: VenueTask
+  description: A live-research study with questions, applications and, once closed, deterministic aggregateResults. bountyUsd is always 0 since 14 Sept 2026.
+  schemas: [VenueTask]
+  relationships:
+  - {belongs_to: Wallet, via: posterWallet}
+  - {has_many: VenueApplication, via: applications (embedded)}
+  - {has_many: ResearchConversation, via: taskId}
+- name: VenueApplication
+  description: 'An embedded participation record: workerWallet, optional message, appliedAt and researchAnswer[] aligned to researchQuestions[].'
+  schemas: ['VenueTask.applications[]']
+  relationships:
+  - {belongs_to: VenueTask, via: embedded}
+  - {belongs_to: Wallet, via: workerWallet}
+- name: ResearchConversation
+  description: A conversational participation session (conversationId) that records answers into the same pipeline as a direct application when it concludes.
+  schemas: []
+  relationships:
+  - {belongs_to: VenueTask, via: taskId}
+  - {belongs_to: Wallet, via: workerWallet}
+- name: MarketingCampaign
+  description: Internal (X-Console-Secret). An Orpheus campaign with a token spend against an initial $50 balance or a top-up.
+  schemas: [MarketingCampaign]
+  relationships:
+  - {has_many: TokenTopUpRequest, via: attach-topup (topUpRequestId)}
+- name: TokenTopUpRequest
+  description: Internal. A request for marketing tokens beyond the initial balance, decided Y/N by the Steward.
+  schemas: [TokenTopUpRequestInput, TokenTopUpRequest]
+  relationships:
+  - {belongs_to: MarketingCampaign, via: attach-topup}

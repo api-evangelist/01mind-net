@@ -1,23 +1,183 @@
 aid: 01mind-net
 name: 01Mind
-description: '01Mind is a company surfaced via the API Evangelist harvest backlog (source: a2a-registry)
-  and added to the network as a stub for full-pipeline profiling.'
+description: >-
+  01Mind is a Melbourne, Australia software and intelligence-system maker (a registered business name of a
+  sole trader, ABN 36 557 232 677) that runs an agent-facing "superstore" at 01mind.net: paid, per-call API
+  services for autonomous agents — document rendering to real .docx/.xlsx files, plaintext email sending,
+  live legal-research answers, AI-written compliance reference packs, agent-economy venue intelligence and an
+  on-demand safe tool-generation engine (Charon) — settled in USDC on Base through the x402 protocol with no
+  account required. The same catalogue is exposed three ways: a 28-operation OpenAPI 3.0.3 REST contract at
+  https://01mind.net/openapi.json, a remote MCP server at https://01mind.net/mcp that answers an anonymous
+  tools/list, and an A2A 0.3.0 agent card at /.well-known/agent-card.json declaring ten skills purchasable
+  through the a2a-x402 payment extension.
 url: https://raw.githubusercontent.com/api-evangelist/01mind-net/refs/heads/main/apis.yml
 x-type: company
 x-source: harvest:a2a-registry
-x-tier: stub
-x-tier-reason: harvest
+x-tier: profiled
+x-tier-reason: enrichment pass 2026-09-19 (local-v3; was a2a-registry harvest stub)
 specificationVersion: '0.20'
 created: '2026-09-19'
 modified: '2026-09-19'
 tags:
-- Company
-apis: []
+- Agents
+- Agent Commerce
+- A2A
+- MCP
+- x402
+- Document Generation
+- Email
+- Legal Research
+- Compliance
+- Tool Generation
+- agent-native
+- Australia
+tags_raw:
+- Agents
+- Agent commerce
+- A2A
+- MCP
+- x402
+- Document generation
+- Email
+- Legal research
+- Compliance
+- Tool generation
+- Agent-native
+- Australia
+apis:
+- aid: 01mind-net:01mind-agent-superstore-api
+  name: 01Mind Agent Superstore API
+  description: >-
+    Agent-consumable REST API for the 01Mind superstore: purchase-and-collect execution of catalogue listings
+    (document rendering, email send, legal research, reference packs) under x402 payment with EIP-191 wallet
+    proof, a free sandbox dry run, saved document templates on a free X-API-Key, Charon's Tool Generation
+    Engine (submit a declared recipe, poll the request, report production faults), the public live-research
+    Venue, and Orpheus's internal marketing-campaign spend endpoints (X-Console-Secret, never issued to
+    customers). 28 operations across 27 paths, published as OpenAPI 3.0.3 at https://01mind.net/openapi.json
+    with servers[] https://01mind.net.
+  humanURL: https://01mind.net/developers
+  baseURL: https://01mind.net
+  tags:
+  - Agents
+  - Agent Commerce
+  - x402
+  - Document Generation
+  - Tool Generation
+  properties:
+  - type: OpenAPI
+    url: openapi/01mind-net-openapi.json
+  - type: OpenAPI
+    name: 01Mind Agent Superstore API OpenAPI (provider-hosted)
+    url: https://01mind.net/openapi.json
+  - type: Documentation
+    url: https://01mind.net/developers
+  - type: APIReference
+    url: https://01mind.net/openapi.json
+  - type: Overlay
+    url: overlays/01mind-net-openapi-overlay.yaml
+- aid: 01mind-net:01mind-mcp-server
+  name: 01Mind MCP Server
+  description: >-
+    Remote Model Context Protocol server at https://01mind.net/mcp (Streamable HTTP, POST only, protocol
+    version 2025-06-18, serverInfo 01Mind 3.0.0). tools/list and initialize answer anonymously with three
+    tools — list_offerings, render_document and save_document_template — each carrying a real inputSchema;
+    resources/list and prompts/list are not implemented. Tool calls that cost money return a real HTTP 402
+    x402 challenge and are retried with a payment header; render_document is free for the first five
+    documents a month on an X-API-Key.
+  humanURL: https://01mind.net/developers
+  baseURL: https://01mind.net/mcp
+  tags:
+  - MCP
+  - agent-native
+  - Agent Commerce
+  properties:
+  - type: MCPServer
+    url: mcp/01mind-net-mcp.yml
+  - type: MCPServer
+    name: 01Mind MCP endpoint (Streamable HTTP)
+    url: https://01mind.net/mcp
+  - type: ToolCrosswalk
+    url: mcp/01mind-net-tool-crosswalk.yml
+- aid: 01mind-net:01mind-a2a-agent
+  name: 01Mind A2A Agent
+  description: >-
+    Agent2Agent (A2A) protocol surface: an agent card served from https://01mind.net/.well-known/agent-card.json
+    (protocolVersion 0.3.0, JSONRPC transport, version 3.0.0) advertising ten skills — document rendering,
+    email send, legal research, six AI-written reference packs and venue intelligence — each purchased by
+    sending a DataPart {"listingId": ...} to the JSON-RPC endpoint at https://01mind.net/a2a under the
+    required a2a-x402 v0.1 payment extension, settled on Base (eip155:8453). The endpoint answers JSON-RPC
+    2.0 (tasks/get returns -32001 Task not found for an unknown id); streaming and push notifications are
+    declared unsupported.
+  humanURL: https://01mind.net/developers
+  baseURL: https://01mind.net/a2a
+  tags:
+  - A2A
+  - agent-native
+  - x402
+  properties:
+  - type: AgentCard
+    url: a2a/01mind-net-a2a.yml
+  - type: AgentCard
+    name: A2A Agent Card (provider-hosted)
+    url: https://01mind.net/.well-known/agent-card.json
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
 - FN: APIs.json
   email: info@apis.io
 common:
+- type: AgenticAccess
+  url: agentic-access/01mind-net-agentic-access.yml
 - type: Website
   url: https://01mind.net/
+- type: Documentation
+  url: https://01mind.net/developers
+- type: Pricing
+  url: https://01mind.net/catalogue
+- type: TermsOfService
+  url: https://01mind.net/terms
+- type: PrivacyPolicy
+  url: https://01mind.net/privacy
+- type: Support
+  url: https://01mind.net/contact
+- type: AgentCard
+  url: a2a/01mind-net-a2a.yml
+- type: MCPServer
+  url: mcp/01mind-net-mcp.yml
+- type: WellKnown
+  url: well-known/01mind-net-well-known.yml
+- type: LLMsTxt
+  url: llms/01mind-net-llms.txt
+- type: Authentication
+  url: authentication/01mind-net-authentication.yml
+- type: Conventions
+  url: conventions/01mind-net-conventions.yml
+- type: ErrorCatalog
+  url: errors/01mind-net-problem-types.yml
+- type: DataModel
+  url: data-model/01mind-net-data-model.yml
+- type: RateLimits
+  url: rate-limits/01mind-net-rate-limits.yml
+- type: Plans
+  url: plans/01mind-net-plans-pricing.yml
+- type: Sandbox
+  url: sandbox/01mind-net-sandbox.yml
+- type: Conformance
+  url: conformance/01mind-net-conformance.yml
+- type: Lifecycle
+  url: lifecycle/01mind-net-lifecycle.yml
+- type: AgentSkill
+  url: skills/_index.yml
+- type: DomainSecurity
+  url: security/01mind-net-domain-security.yml
+- type: AITransparency
+  url: https://01mind.net/terms
+- type: DataSubjectRequest
+  url: https://01mind.net/privacy
+- type: Subprocessors
+  url: https://01mind.net/privacy
+x-enrichment:
+  date: '2026-09-19'
+  status: enriched
+  artifacts_added: 26
+  pass: local-v3
