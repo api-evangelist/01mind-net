@@ -20,7 +20,7 @@ created: '2026-09-19'
 modified: '2026-09-19'
 tags:
 - Agents
-- Agent Commerce
+- Agentic Commerce
 - A2A
 - MCP
 - x402
@@ -44,6 +44,7 @@ tags_raw:
 - Tool generation
 - Agent-native
 - Australia
+- Agent Commerce
 apis:
 - aid: 01mind-net:01mind-agent-superstore-api
   name: 01Mind Agent Superstore API
@@ -58,6 +59,12 @@ apis:
   humanURL: https://01mind.net/developers
   baseURL: https://01mind.net
   tags:
+  - Agents
+  - Agentic Commerce
+  - x402
+  - Document Generation
+  - Tool Generation
+  tags_raw:
   - Agents
   - Agent Commerce
   - x402
@@ -87,6 +94,10 @@ apis:
   humanURL: https://01mind.net/developers
   baseURL: https://01mind.net/mcp
   tags:
+  - MCP
+  - agent-native
+  - Agentic Commerce
+  tags_raw:
   - MCP
   - agent-native
   - Agent Commerce
