@@ -29,7 +29,7 @@ tags:
 - Legal Research
 - Compliance
 - Tool Generation
-- agent-native
+- Agent-Native
 - Australia
 tags_raw:
 - Agents
@@ -45,57 +45,22 @@ tags_raw:
 - Agent-native
 - Australia
 - Agent Commerce
+- agent-native
 apis:
-- aid: 01mind-net:01mind-agent-superstore-api
-  name: 01Mind Agent Superstore API
-  description: >-
-    Agent-consumable REST API for the 01Mind superstore: purchase-and-collect execution of catalogue listings
-    (document rendering, email send, legal research, reference packs) under x402 payment with EIP-191 wallet
-    proof, a free sandbox dry run, saved document templates on a free X-API-Key, Charon's Tool Generation
-    Engine (submit a declared recipe, poll the request, report production faults), the public live-research
-    Venue, and Orpheus's internal marketing-campaign spend endpoints (X-Console-Secret, never issued to
-    customers). 28 operations across 27 paths, published as OpenAPI 3.0.3 at https://01mind.net/openapi.json
-    with servers[] https://01mind.net.
-  humanURL: https://01mind.net/developers
-  baseURL: https://01mind.net
-  tags:
-  - Agents
-  - Agentic Commerce
-  - x402
-  - Document Generation
-  - Tool Generation
-  tags_raw:
-  - Agents
-  - Agent Commerce
-  - x402
-  - Document Generation
-  - Tool Generation
-  properties:
-  - type: OpenAPI
-    url: openapi/01mind-net-openapi.json
-  - type: OpenAPI
-    name: 01Mind Agent Superstore API OpenAPI (provider-hosted)
-    url: https://01mind.net/openapi.json
-  - type: Documentation
-    url: https://01mind.net/developers
-  - type: APIReference
-    url: https://01mind.net/openapi.json
-  - type: Overlay
-    url: overlays/01mind-net-openapi-overlay.yaml
 - aid: 01mind-net:01mind-mcp-server
   name: 01Mind MCP Server
   description: >-
     Remote Model Context Protocol server at https://01mind.net/mcp (Streamable HTTP, POST only, protocol
     version 2025-06-18, serverInfo 01Mind 3.0.0). tools/list and initialize answer anonymously with three
     tools — list_offerings, render_document and save_document_template — each carrying a real inputSchema;
-    resources/list and prompts/list are not implemented. Tool calls that cost money return a real HTTP 402
-    x402 challenge and are retried with a payment header; render_document is free for the first five
+    resources/list and prompts/list are not implemented. Tool calls that cost money return a real HTTP
+    402 x402 challenge and are retried with a payment header; render_document is free for the first five
     documents a month on an X-API-Key.
   humanURL: https://01mind.net/developers
   baseURL: https://01mind.net/mcp
   tags:
   - MCP
-  - agent-native
+  - Agent-Native
   - Agentic Commerce
   tags_raw:
   - MCP
@@ -114,14 +79,18 @@ apis:
   description: >-
     Agent2Agent (A2A) protocol surface: an agent card served from https://01mind.net/.well-known/agent-card.json
     (protocolVersion 0.3.0, JSONRPC transport, version 3.0.0) advertising ten skills — document rendering,
-    email send, legal research, six AI-written reference packs and venue intelligence — each purchased by
-    sending a DataPart {"listingId": ...} to the JSON-RPC endpoint at https://01mind.net/a2a under the
-    required a2a-x402 v0.1 payment extension, settled on Base (eip155:8453). The endpoint answers JSON-RPC
-    2.0 (tasks/get returns -32001 Task not found for an unknown id); streaming and push notifications are
-    declared unsupported.
+    email send, legal research, six AI-written reference packs and venue intelligence — each purchased
+    by sending a DataPart {"listingId": ...} to the JSON-RPC endpoint at https://01mind.net/a2a under
+    the required a2a-x402 v0.1 payment extension, settled on Base (eip155:8453). The endpoint answers
+    JSON-RPC 2.0 (tasks/get returns -32001 Task not found for an unknown id); streaming and push notifications
+    are declared unsupported.
   humanURL: https://01mind.net/developers
   baseURL: https://01mind.net/a2a
   tags:
+  - A2A
+  - Agent-Native
+  - x402
+  tags_raw:
   - A2A
   - agent-native
   - x402
@@ -131,12 +100,140 @@ apis:
   - type: AgentCard
     name: A2A Agent Card (provider-hosted)
     url: https://01mind.net/.well-known/agent-card.json
+- aid: 01mind-net:01mind-net-campaigns-api
+  name: 01Mind Campaigns API
+  description: The Campaigns API from 01Mind — 7 operation(s) for campaigns.
+  humanURL: https://01mind.net/developers
+  baseURL: https://01mind.net/mcp
+  tags:
+  - Campaigns
+  properties:
+  - type: OpenAPI
+    url: openapi/01mind-net-campaigns-api-openapi.yml
+  - type: Documentation
+    url: https://01mind.net/developers
+  - type: APIReference
+    url: https://01mind.net/openapi.json
+- aid: 01mind-net:01mind-net-charon-api
+  name: 01Mind Charon API
+  description: The Charon API from 01Mind — 1 operation(s) for charon.
+  humanURL: https://01mind.net/developers
+  baseURL: https://01mind.net/mcp
+  tags:
+  - Charon
+  properties:
+  - type: OpenAPI
+    url: openapi/01mind-net-charon-api-openapi.yml
+  - type: Documentation
+    url: https://01mind.net/developers
+  - type: APIReference
+    url: https://01mind.net/openapi.json
+- aid: 01mind-net:01mind-net-document-templates-api
+  name: 01Mind Document Templates API
+  description: The Document Templates API from 01Mind — 2 operation(s) for document templates.
+  humanURL: https://01mind.net/developers
+  baseURL: https://01mind.net/mcp
+  tags:
+  - Document Templates
+  properties:
+  - type: OpenAPI
+    url: openapi/01mind-net-document-templates-api-openapi.yml
+  - type: Documentation
+    url: https://01mind.net/developers
+  - type: APIReference
+    url: https://01mind.net/openapi.json
+- aid: 01mind-net:01mind-net-execute-api
+  name: 01Mind Execute API
+  description: The Execute API from 01Mind — 1 operation(s) for execute.
+  humanURL: https://01mind.net/developers
+  baseURL: https://01mind.net/mcp
+  tags:
+  - Execute
+  properties:
+  - type: OpenAPI
+    url: openapi/01mind-net-execute-api-openapi.yml
+  - type: Documentation
+    url: https://01mind.net/developers
+  - type: APIReference
+    url: https://01mind.net/openapi.json
+- aid: 01mind-net:01mind-net-research-api
+  name: 01Mind Research API
+  description: The Research API from 01Mind — 2 operation(s) for research.
+  humanURL: https://01mind.net/developers
+  baseURL: https://01mind.net/mcp
+  tags:
+  - Research
+  properties:
+  - type: OpenAPI
+    url: openapi/01mind-net-research-api-openapi.yml
+  - type: Documentation
+    url: https://01mind.net/developers
+  - type: APIReference
+    url: https://01mind.net/openapi.json
+- aid: 01mind-net:01mind-net-sandbox-api
+  name: 01Mind Sandbox API
+  description: The Sandbox API from 01Mind — 1 operation(s) for sandbox.
+  humanURL: https://01mind.net/developers
+  baseURL: https://01mind.net/mcp
+  tags:
+  - Sandbox
+  properties:
+  - type: OpenAPI
+    url: openapi/01mind-net-sandbox-api-openapi.yml
+  - type: Documentation
+    url: https://01mind.net/developers
+  - type: APIReference
+    url: https://01mind.net/openapi.json
+- aid: 01mind-net:01mind-net-token-topups-api
+  name: 01Mind Token Topups API
+  description: The Token Topups API from 01Mind — 2 operation(s) for token topups.
+  humanURL: https://01mind.net/developers
+  baseURL: https://01mind.net/mcp
+  tags:
+  - Token Topups
+  properties:
+  - type: OpenAPI
+    url: openapi/01mind-net-token-topups-api-openapi.yml
+  - type: Documentation
+    url: https://01mind.net/developers
+  - type: APIReference
+    url: https://01mind.net/openapi.json
+- aid: 01mind-net:01mind-net-tool-requests-api
+  name: 01Mind Tool Requests API
+  description: The Tool Requests API from 01Mind — 7 operation(s) for tool requests.
+  humanURL: https://01mind.net/developers
+  baseURL: https://01mind.net/mcp
+  tags:
+  - Tool Requests
+  properties:
+  - type: OpenAPI
+    url: openapi/01mind-net-tool-requests-api-openapi.yml
+  - type: Documentation
+    url: https://01mind.net/developers
+  - type: APIReference
+    url: https://01mind.net/openapi.json
+- aid: 01mind-net:01mind-net-venue-api
+  name: 01Mind Venue API
+  description: The Venue API from 01Mind — 4 operation(s) for venue.
+  humanURL: https://01mind.net/developers
+  baseURL: https://01mind.net/mcp
+  tags:
+  - Venue
+  properties:
+  - type: OpenAPI
+    url: openapi/01mind-net-venue-api-openapi.yml
+  - type: Documentation
+    url: https://01mind.net/developers
+  - type: APIReference
+    url: https://01mind.net/openapi.json
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
 - FN: APIs.json
   email: info@apis.io
 common:
+- type: Overlay
+  url: overlays/01mind-net-openapi-overlay.yaml
 - type: AgenticAccess
   url: agentic-access/01mind-net-agentic-access.yml
 - type: Website
@@ -192,3 +289,10 @@ x-enrichment:
   status: enriched
   artifacts_added: 26
   pass: local-v3
+x-a2a:
+  verified: true
+  probed: '2026-09-26'
+  url: "https://01mind.net/.well-known/agent-card.json"
+  grade: "conformant"
+  protocol_version: "0.3.0"
+  control: 404

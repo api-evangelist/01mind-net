@@ -1,0 +1,189 @@
+openapi: 3.2.0
+info:
+  title: 01Mind Agent Superstore Execute API
+  version: 2.0.0
+  description: Agent-consumable API for the 01Mind superstore, including v2 Tool Generation Engine (Charon) and Marketing Spend Ceiling (Orpheus) endpoints. Paying for any listing accepts the 01Mind Terms of Sale.
+  termsOfService: https://01mind.net/terms
+servers:
+- url: https://01mind.net
+  description: Real, live production server -- previously listed as a local dev placeholder (http://localhost:4103), which any real agent reading this spec would have found unreachable.
+tags:
+- name: Execute
+paths:
+  /execute/{listingId}:
+    post:
+      summary: Execute a purchased listing
+      description: 'No API key required -- under x402 the wallet that paid is the identity. To draw on a purchase, prove you control that wallet: send walletAddress, signedAt (the current time, ISO 8601, within 10 minutes of the server clock) and signature, an EIP-191 personal_sign by that wallet of exactly ''01Mind: collect as at ''. Each signature works once. A walletAddress sent without a signature is ignored. Legal research and email are metered: each settled purchase covers one question or one email. For render-document specifically: send an API key as X-API-Key to draw on that key''s free monthly allowance (5 documents, resetting on the 1st, UTC), or prove your wallet to draw on purchased credit, where each settled purchase covers exactly one document. A malformed payload is rejected before anything is consumed, so a mistake never costs you a document. Bodies up to 4 MB are accepted on this route; larger returns a real 413 rather than a dropped connection.'
+      parameters:
+      - name: listingId
+        in: path
+        required: true
+        schema:
+          type: string
+        description: e.g. render-document. GET /charon lists every purchasable listing.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RenderDocumentInput'
+      responses:
+        '200':
+          description: Executed.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  listingId:
+                    type: string
+                  executionResult:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/RenderDocumentResult'
+        '400':
+          description: Invalid input. Nothing was consumed.
+        '401':
+          description: 'A wallet proof was sent and failed: wrong message, expired signedAt, or a signature already used. The response names the reason and the exact message to sign.'
+        '402':
+          description: No free allowance left and no purchased credit for this wallet.
+        '403':
+          description: Blocked pending legal review, or no settled purchase by a proven wallet where one is required. The response says how to prove the wallet.
+        '413':
+          description: The request body, or the document it describes, exceeds a stated limit. The message names the limit and what was seen. Nothing was consumed.
+      tags:
+      - Execute
+      operationId: postExecuteByListingId
+      x-operation-id-source: derived
+components:
+  schemas:
+    RenderDocumentInput:
+      type: object
+      description: 'Input for the render-document listing. Supply `format` plus EXACTLY ONE of blocks, markdown, sheets, or templateId. Every normalisation the server performs -- a sheet renamed to satisfy Excel, a ragged table row padded, a cell truncated -- is returned in warnings[]; nothing is silently altered. Nothing is stored: the file comes back as base64 in the same response and there is no URL to fetch it from later.'
+      required:
+      - format
+      properties:
+        format:
+          type: string
+          enum:
+          - docx
+          - xlsx
+        filename:
+          type: string
+          description: Optional. Path separators, traversal sequences and Windows reserved names are stripped; the correct extension is added.
+        blocks:
+          type: array
+          description: docx only. Ordered document content.
+          items:
+            type: object
+            required:
+            - type
+            properties:
+              type:
+                type: string
+                enum:
+                - title
+                - heading
+                - text
+                - para
+                - mono
+                - table
+              text:
+                type: string
+              level:
+                type: integer
+                enum:
+                - 1
+                - 2
+                description: heading only. Only two heading levels exist; anything else becomes level 2 with a warning.
+              headers:
+                type: array
+                items:
+                  type: string
+                description: table only. If omitted, headers are generated from the widest row and a warning is returned.
+              rows:
+                type: array
+                items:
+                  type: array
+                description: table only. Rows are padded or truncated to the header count, with a warning.
+        markdown:
+          type: string
+          description: docx only. Headings, paragraphs, fenced code, pipe tables and list items. Inline bold/italic/inline-code/link targets are stripped with a warning -- the underlying writer applies formatting per paragraph, not within one.
+        sheets:
+          type: array
+          description: xlsx only.
+          items:
+            type: object
+            required:
+            - name
+            - rows
+            properties:
+              name:
+                type: string
+                description: 'Sanitised for Excel: the characters : \\ / ? * [ ] are removed, leading/trailing apostrophes are removed, the name is cut to 31 characters, "History" is renamed, and duplicates are numbered. Every change is reported in warnings[].'
+              rows:
+                type: array
+                description: Either an array of objects, or an array of arrays when `columns` is supplied. The array form costs materially fewer tokens on a large sheet.
+              columns:
+                type: array
+                items:
+                  type: string
+                description: Required when rows are arrays. Optional otherwise, where it fixes column order.
+        templateId:
+          type: string
+          description: Render a saved template. GET /document-templates lists what is available to you.
+        values:
+          type: object
+          description: Values for a template. A missing placeholder is a 400 naming the field, never a document containing a visible {{placeholder}}.
+        walletAddress:
+          type: string
+          description: The paying wallet, when drawing on purchased credit rather than the free monthly allowance.
+    RenderDocumentResult:
+      type: object
+      properties:
+        filename:
+          type: string
+        contentType:
+          type: string
+        encoding:
+          type: string
+          enum:
+          - base64
+        bytes:
+          type: integer
+        sha256:
+          type: string
+          description: Checksum of the returned bytes, so a delivery dispute can be settled without either side retaining the document.
+        file:
+          type: string
+          description: The document, base64 encoded.
+        warnings:
+          type: array
+          items:
+            type: string
+          description: Every change the server made to your input. Empty when nothing was altered.
+        paidWith:
+          type: string
+          enum:
+          - free
+          - purchased
+          - prepaid
+          - internal
+        freeDocumentsRemainingThisMonth:
+          type:
+          - integer
+          - 'null'
+        purchasedDocumentsRemaining:
+          type:
+          - integer
+          - 'null'
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: Customer/external-agent key issued via POST /keys.
+    ConsoleSecretAuth:
+      type: apiKey
+      in: header
+      name: X-Console-Secret
+      description: Internal Orpheus/Charon-only credential. Never issued to customers or external agents.

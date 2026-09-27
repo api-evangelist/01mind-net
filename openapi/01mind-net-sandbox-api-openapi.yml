@@ -1,0 +1,128 @@
+openapi: 3.2.0
+info:
+  title: 01Mind Agent Superstore Sandbox API
+  version: 2.0.0
+  description: Agent-consumable API for the 01Mind superstore, including v2 Tool Generation Engine (Charon) and Marketing Spend Ceiling (Orpheus) endpoints. Paying for any listing accepts the 01Mind Terms of Sale.
+  termsOfService: https://01mind.net/terms
+servers:
+- url: https://01mind.net
+  description: Real, live production server -- previously listed as a local dev placeholder (http://localhost:4103), which any real agent reading this spec would have found unreachable.
+tags:
+- name: Sandbox
+paths:
+  /sandbox/execute/{listingId}:
+    post:
+      summary: Free dry run
+      description: 'Runs the identical validation the paid call runs and reports exactly what would be produced -- final sanitised sheet names, block counts, and every warning -- without producing a file and without consuming an allowance or a credit. No key and no payment required. For render-document this is the real validator for blocks and sheets: those are nested structures, and finding out for free that a payload is malformed is the difference between trying this listing and abandoning it.'
+      parameters:
+      - name: listingId
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RenderDocumentInput'
+      responses:
+        '200':
+          description: What would be produced. No file is returned.
+      tags:
+      - Sandbox
+      operationId: postSandboxExecuteByListingId
+      x-operation-id-source: derived
+components:
+  schemas:
+    RenderDocumentInput:
+      type: object
+      description: 'Input for the render-document listing. Supply `format` plus EXACTLY ONE of blocks, markdown, sheets, or templateId. Every normalisation the server performs -- a sheet renamed to satisfy Excel, a ragged table row padded, a cell truncated -- is returned in warnings[]; nothing is silently altered. Nothing is stored: the file comes back as base64 in the same response and there is no URL to fetch it from later.'
+      required:
+      - format
+      properties:
+        format:
+          type: string
+          enum:
+          - docx
+          - xlsx
+        filename:
+          type: string
+          description: Optional. Path separators, traversal sequences and Windows reserved names are stripped; the correct extension is added.
+        blocks:
+          type: array
+          description: docx only. Ordered document content.
+          items:
+            type: object
+            required:
+            - type
+            properties:
+              type:
+                type: string
+                enum:
+                - title
+                - heading
+                - text
+                - para
+                - mono
+                - table
+              text:
+                type: string
+              level:
+                type: integer
+                enum:
+                - 1
+                - 2
+                description: heading only. Only two heading levels exist; anything else becomes level 2 with a warning.
+              headers:
+                type: array
+                items:
+                  type: string
+                description: table only. If omitted, headers are generated from the widest row and a warning is returned.
+              rows:
+                type: array
+                items:
+                  type: array
+                description: table only. Rows are padded or truncated to the header count, with a warning.
+        markdown:
+          type: string
+          description: docx only. Headings, paragraphs, fenced code, pipe tables and list items. Inline bold/italic/inline-code/link targets are stripped with a warning -- the underlying writer applies formatting per paragraph, not within one.
+        sheets:
+          type: array
+          description: xlsx only.
+          items:
+            type: object
+            required:
+            - name
+            - rows
+            properties:
+              name:
+                type: string
+                description: 'Sanitised for Excel: the characters : \\ / ? * [ ] are removed, leading/trailing apostrophes are removed, the name is cut to 31 characters, "History" is renamed, and duplicates are numbered. Every change is reported in warnings[].'
+              rows:
+                type: array
+                description: Either an array of objects, or an array of arrays when `columns` is supplied. The array form costs materially fewer tokens on a large sheet.
+              columns:
+                type: array
+                items:
+                  type: string
+                description: Required when rows are arrays. Optional otherwise, where it fixes column order.
+        templateId:
+          type: string
+          description: Render a saved template. GET /document-templates lists what is available to you.
+        values:
+          type: object
+          description: Values for a template. A missing placeholder is a 400 naming the field, never a document containing a visible {{placeholder}}.
+        walletAddress:
+          type: string
+          description: The paying wallet, when drawing on purchased credit rather than the free monthly allowance.
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: Customer/external-agent key issued via POST /keys.
+    ConsoleSecretAuth:
+      type: apiKey
+      in: header
+      name: X-Console-Secret
+      description: Internal Orpheus/Charon-only credential. Never issued to customers or external agents.

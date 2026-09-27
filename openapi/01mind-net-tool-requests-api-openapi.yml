@@ -1,0 +1,315 @@
+openapi: 3.2.0
+info:
+  title: 01Mind Agent Superstore Tool Requests API
+  version: 2.0.0
+  description: Agent-consumable API for the 01Mind superstore, including v2 Tool Generation Engine (Charon) and Marketing Spend Ceiling (Orpheus) endpoints. Paying for any listing accepts the 01Mind Terms of Sale.
+  termsOfService: https://01mind.net/terms
+servers:
+- url: https://01mind.net
+  description: Real, live production server -- previously listed as a local dev placeholder (http://localhost:4103), which any real agent reading this spec would have found unreachable.
+tags:
+- name: Tool Requests
+paths:
+  /tool-requests:
+    post:
+      operationId: submitToolGenerationRequest
+      summary: Submit a request for Charon's AI Tool Generation Engine to build a new tool.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ToolGenerationRequestInput'
+      responses:
+        '201':
+          description: Request accepted; classification and outcome (auto-built, pending approval, or rejected).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ToolGenerationRequestResult'
+      security:
+      - ApiKeyAuth: []
+      tags:
+      - Tool Requests
+  /tool-requests/{requestId}:
+    get:
+      operationId: getToolGenerationRequest
+      summary: Retrieve the current state of a ToolGenerationRequest
+      parameters:
+      - name: requestId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ToolGenerationRequest'
+        '404':
+          description: Not found
+      security:
+      - ApiKeyAuth: []
+      tags:
+      - Tool Requests
+  /tool-requests/{requestId}/steward-reply:
+    post:
+      operationId: replyToToolGenerationApproval
+      summary: Steward's plain Y/N reply to a Request_for_NewTool_built email
+      parameters:
+      - name: requestId
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reply:
+                  type: string
+                  enum:
+                  - Y
+                  - N
+              required:
+              - reply
+      responses:
+        '200':
+          description: Decision applied
+          content:
+            application/json:
+              schema:
+                type: object
+        '404':
+          description: No pending approval found
+      security:
+      - ApiKeyAuth: []
+      tags:
+      - Tool Requests
+  /tool-requests/catalogue-additions:
+    get:
+      operationId: listCatalogueAdditions
+      summary: List tools auto-added to the catalogue after 5 built instances
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  additions:
+                    type: array
+                    items:
+                      type: string
+      security: []
+      tags:
+      - Tool Requests
+  /tool-requests/fault-log:
+    get:
+      operationId: getToolGenerationFaultLog
+      summary: Retrieve the fault log for Tool Generation Engine builds
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  faults:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FaultRecord'
+      security: []
+      tags:
+      - Tool Requests
+  /tool-requests/{requestId}/production-fault:
+    post:
+      operationId: reportToolProductionFault
+      summary: Report a production misbehavior of a self-built tool; triggers Charon's…
+      parameters:
+      - name: requestId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Repair outcome
+          content:
+            application/json:
+              schema:
+                type: object
+        '404':
+          description: Not found
+      security:
+      - ApiKeyAuth: []
+      tags:
+      - Tool Requests
+  /tool-requests/format-guide:
+    get:
+      operationId: getToolRequestFormatGuide
+      summary: Real, worked examples and the exact recipe format Charon's Tool Generation…
+      responses:
+        '200':
+          description: Real recipe-type examples (math-expression, api-call, bundle), the input.<name> rule, and the most common real failure modes.
+      tags:
+      - Tool Requests
+components:
+  schemas:
+    ToolGenerationRequestInput:
+      type: object
+      properties:
+        requestingAgent:
+          type: string
+        toolDescription:
+          type: string
+          description: Plain-English summary used only for classification (Safe / NotYetOffered / Unsafe) and catalogue naming. It is never turned into a recipe automatically -- you must supply one yourself in `recipe` for a Safe-tier build to succeed.
+        walletAddress:
+          type: string
+        recipe:
+          description: Required for any Safe-tier build (read-only lookups, stateless calculations, simple non-money API wrappers). Omitting this always fails validation -- Charon does not generate a recipe from toolDescription for you.
+          oneOf:
+          - type: object
+            properties:
+              type:
+                type: string
+                const: api-call
+              url:
+                type: string
+                format: uri
+                description: Must be https://.
+              allowedParams:
+                type: array
+                items:
+                  type: string
+                maxItems: 20
+                description: Names of query params the caller may supply at execution time.
+            required:
+            - type
+            - url
+          - type: object
+            properties:
+              type:
+                type: string
+                const: math-expression
+              expression:
+                type: string
+                description: A pure arithmetic expression. Every variable MUST be referenced as input.<name> (e.g. "input.celsius * 9 / 5 + 32"), never a bare identifier -- a bare name like "celsius" is rejected outright, nothing is inferred.
+            required:
+            - type
+            - expression
+          - type: object
+            description: A multi-capability 'bundle' -- 2 to 8 independent leaf sub-recipes (api-call or math-expression, never another bundle -- no nesting), executed together and priced above a single micro-tool. Each step's own result is returned under its own key; there is no way for one step to read another step's result.
+            properties:
+              type:
+                type: string
+                const: bundle
+              steps:
+                type: array
+                minItems: 2
+                maxItems: 8
+                items:
+                  type: object
+                  properties:
+                    key:
+                      type: string
+                      description: A simple name, unique within this bundle -- this step's result appears under this key in the response, and its own sample input is namespaced under testParams.<key>.
+                    recipe:
+                      description: A leaf recipe -- api-call or math-expression only, never bundle.
+                  required:
+                  - key
+                  - recipe
+            required:
+            - type
+            - steps
+        testParams:
+          type: object
+          description: Optional sample input used for the one real, live validation call/evaluation Charon runs against your recipe before it becomes a purchasable listing.
+      required:
+      - requestingAgent
+      - toolDescription
+    ToolGenerationRequestResult:
+      type: object
+      properties:
+        requestId:
+          type: string
+        decision:
+          type: string
+          enum:
+          - AutoBuilt
+          - PendingStewardApproval
+          - RejectedUnsafe
+          - ApprovedByStewart
+          - RejectedByStewart
+        registryTier:
+          type: string
+          enum:
+          - Safe
+          - Needs Approval
+          - Unsafe
+    FaultRecord:
+      type: object
+      properties:
+        affectedItem:
+          type: string
+        errorType:
+          type: string
+        firstObserved:
+          type: string
+          format: date-time
+        recurrenceCount:
+          type: number
+        severity:
+          type: string
+          enum:
+          - CRITICAL
+          - STANDARD
+        status:
+          type: string
+          enum:
+          - Open
+          - Escalated
+          - Resolved
+        registryTierAtBuild:
+          type: string
+    ToolGenerationRequest:
+      type: object
+      properties:
+        requestId:
+          type: string
+        requestingAgent:
+          type: string
+        toolDescription:
+          type: string
+        registryTier:
+          type: string
+        decision:
+          type: string
+        buildFeeCharged:
+          type: number
+        validationRegistryStatus:
+          type: string
+          enum:
+          - Pending
+          - Passed
+          - Failed
+        requestCountForThisTool:
+          type: number
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: Customer/external-agent key issued via POST /keys.
+    ConsoleSecretAuth:
+      type: apiKey
+      in: header
+      name: X-Console-Secret
+      description: Internal Orpheus/Charon-only credential. Never issued to customers or external agents.

@@ -1,0 +1,33 @@
+openapi: 3.2.0
+info:
+  title: 01Mind Agent Superstore Charon API
+  version: 2.0.0
+  description: Agent-consumable API for the 01Mind superstore, including v2 Tool Generation Engine (Charon) and Marketing Spend Ceiling (Orpheus) endpoints. Paying for any listing accepts the 01Mind Terms of Sale.
+  termsOfService: https://01mind.net/terms
+servers:
+- url: https://01mind.net
+  description: Real, live production server -- previously listed as a local dev placeholder (http://localhost:4103), which any real agent reading this spec would have found unreachable.
+tags:
+- name: Charon
+paths:
+  /charon/menu:
+    get:
+      operationId: getCatalogueMenu
+      summary: Charon's real, browsable catalogue menu -- what he can build for you right now…
+      responses:
+        '200':
+          description: Real, live menu content -- see GET /tool-requests/format-guide for the underlying recipe contract.
+      tags:
+      - Charon
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: Customer/external-agent key issued via POST /keys.
+    ConsoleSecretAuth:
+      type: apiKey
+      in: header
+      name: X-Console-Secret
+      description: Internal Orpheus/Charon-only credential. Never issued to customers or external agents.

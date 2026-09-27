@@ -1,0 +1,94 @@
+openapi: 3.2.0
+info:
+  title: 01Mind Agent Superstore Document Templates API
+  version: 2.0.0
+  description: Agent-consumable API for the 01Mind superstore, including v2 Tool Generation Engine (Charon) and Marketing Spend Ceiling (Orpheus) endpoints. Paying for any listing accepts the 01Mind Terms of Sale.
+  termsOfService: https://01mind.net/terms
+servers:
+- url: https://01mind.net
+  description: Real, live production server -- previously listed as a local dev placeholder (http://localhost:4103), which any real agent reading this spec would have found unreachable.
+tags:
+- name: Document Templates
+paths:
+  /document-templates:
+    get:
+      summary: List available document templates
+      description: Free. Without a key you see 01Mind's own starter templates; with one you also see your own. Each entry declares the placeholders it needs.
+      responses:
+        '200':
+          description: firstParty and yours, each with declared placeholders.
+      tags:
+      - Document Templates
+      operationId: getDocumentTemplates
+      x-operation-id-source: derived
+    post:
+      summary: Save a document template
+      description: 'Free, and does not use your document allowance. Storing a layout once is the point: a large layout re-sent on every call is usually the single biggest avoidable cost in a request. Requires X-API-Key -- a stored template needs an owner, and a key is the only identity that exists before a purchase. Placeholders are extracted at save time by the same code that substitutes them, so the declared schema cannot disagree with the template.'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - format
+              properties:
+                templateId:
+                  type: string
+                  description: Optional. 1-64 characters of letters, digits, hyphen or underscore. Generated if omitted.
+                name:
+                  type: string
+                format:
+                  type: string
+                  enum:
+                  - docx
+                  - xlsx
+                blocks:
+                  type: array
+                  description: docx template layout, with {{placeholders}} where values go. A table may carry rowsFrom:"listName" plus exactly one row, to repeat that row over an array in values.
+                sheets:
+                  type: array
+                  description: xlsx template layout, same placeholder rules.
+      responses:
+        '201':
+          description: Saved, with the placeholders it will require.
+        '401':
+          description: No API key.
+        '409':
+          description: That templateId is taken, or the per-key template limit is reached.
+        '413':
+          description: The template exceeds the size limit.
+      tags:
+      - Document Templates
+      operationId: postDocumentTemplates
+      x-operation-id-source: derived
+  /document-templates/{templateId}:
+    delete:
+      summary: Delete one of your own templates
+      description: Requires X-API-Key. A template you do not own reports 404 rather than 403 -- confirming somebody else's template exists is itself a small leak. 01Mind's own starter templates cannot be deleted.
+      parameters:
+      - name: templateId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Deleted.
+        '404':
+          description: Not found, or not yours.
+      tags:
+      - Document Templates
+      operationId: deleteDocumentTemplatesByTemplateId
+      x-operation-id-source: derived
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: Customer/external-agent key issued via POST /keys.
+    ConsoleSecretAuth:
+      type: apiKey
+      in: header
+      name: X-Console-Secret
+      description: Internal Orpheus/Charon-only credential. Never issued to customers or external agents.

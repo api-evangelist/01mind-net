@@ -1,0 +1,235 @@
+openapi: 3.2.0
+info:
+  title: 01Mind Agent Superstore Campaigns API
+  version: 2.0.0
+  description: Agent-consumable API for the 01Mind superstore, including v2 Tool Generation Engine (Charon) and Marketing Spend Ceiling (Orpheus) endpoints. Paying for any listing accepts the 01Mind Terms of Sale.
+  termsOfService: https://01mind.net/terms
+servers:
+- url: https://01mind.net
+  description: Real, live production server -- previously listed as a local dev placeholder (http://localhost:4103), which any real agent reading this spec would have found unreachable.
+tags:
+- name: Campaigns
+paths:
+  /campaigns:
+    post:
+      operationId: startMarketingCampaign
+      summary: Start a new MarketingCampaign under Orpheus's token spend ceiling
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                campaignType:
+                  type: string
+                  enum:
+                  - M2M
+                  - HM
+                description:
+                  type: string
+              required:
+              - campaignType
+              - description
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarketingCampaign'
+      security:
+      - ConsoleSecretAuth: []
+      tags:
+      - Campaigns
+  /campaigns/{campaignId}:
+    get:
+      operationId: getMarketingCampaign
+      summary: Get current campaign state
+      parameters:
+      - name: campaignId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarketingCampaign'
+        '404':
+          description: Not found
+      security:
+      - ConsoleSecretAuth: []
+      tags:
+      - Campaigns
+  /campaigns/{campaignId}/spend:
+    post:
+      operationId: spendCampaignTokens
+      summary: Spend tokens against the initial $50 balance or an approved top-up
+      parameters:
+      - name: campaignId
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amountUSD:
+                  type: number
+              required:
+              - amountUSD
+      responses:
+        '200':
+          description: Spend applied
+        '402':
+          description: Insufficient balance, top-up required
+      security:
+      - ConsoleSecretAuth: []
+      tags:
+      - Campaigns
+  /campaigns/{campaignId}/pause-for-fault:
+    post:
+      operationId: pauseCampaignForFault
+      summary: Orpheus autonomously pauses a campaign under his v1 fault-escalation authority…
+      parameters:
+      - name: campaignId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Paused
+        '404':
+          description: Not found
+      security:
+      - ConsoleSecretAuth: []
+      tags:
+      - Campaigns
+  /campaigns/{campaignId}/resume:
+    post:
+      operationId: resumeCampaignAfterFaultVerifiedFixed
+      summary: Resume a paused campaign once the fault is verified fixed
+      parameters:
+      - name: campaignId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Resumed
+        '404':
+          description: Not found
+      security:
+      - ConsoleSecretAuth: []
+      tags:
+      - Campaigns
+  /campaigns/{campaignId}/complete:
+    post:
+      operationId: completeCampaign
+      summary: Complete a campaign and generate its completion report including tokenSpend and…
+      parameters:
+      - name: campaignId
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                successRating:
+                  type: number
+      responses:
+        '200':
+          description: Completion report
+        '404':
+          description: Not found
+      security:
+      - ConsoleSecretAuth: []
+      tags:
+      - Campaigns
+  /campaigns/{campaignId}/attach-topup:
+    post:
+      operationId: attachTopUpToCampaign
+      summary: Attach an approved TokenTopUpRequest's balance to a specific campaign
+      parameters:
+      - name: campaignId
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                topUpRequestId:
+                  type: string
+              required:
+              - topUpRequestId
+      responses:
+        '200':
+          description: Attached
+        '400':
+          description: Invalid campaign or unapproved top-up
+      security:
+      - ConsoleSecretAuth: []
+      tags:
+      - Campaigns
+components:
+  schemas:
+    MarketingCampaign:
+      type: object
+      properties:
+        campaignId:
+          type: string
+        campaignType:
+          type: string
+          enum:
+          - M2M
+          - HM
+        description:
+          type: string
+        tokenSpend:
+          type: number
+        tokenSource:
+          type: string
+          enum:
+          - InitialBalance
+          - Top-up
+        successRating:
+          type:
+          - number
+          - 'null'
+        status:
+          type: string
+          enum:
+          - Active
+          - Paused
+          - Completed
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: Customer/external-agent key issued via POST /keys.
+    ConsoleSecretAuth:
+      type: apiKey
+      in: header
+      name: X-Console-Secret
+      description: Internal Orpheus/Charon-only credential. Never issued to customers or external agents.

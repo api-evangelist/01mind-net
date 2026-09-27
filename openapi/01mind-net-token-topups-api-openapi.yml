@@ -1,0 +1,111 @@
+openapi: 3.2.0
+info:
+  title: 01Mind Agent Superstore Token Topups API
+  version: 2.0.0
+  description: Agent-consumable API for the 01Mind superstore, including v2 Tool Generation Engine (Charon) and Marketing Spend Ceiling (Orpheus) endpoints. Paying for any listing accepts the 01Mind Terms of Sale.
+  termsOfService: https://01mind.net/terms
+servers:
+- url: https://01mind.net
+  description: Real, live production server -- previously listed as a local dev placeholder (http://localhost:4103), which any real agent reading this spec would have found unreachable.
+tags:
+- name: Token Topups
+paths:
+  /token-topups:
+    post:
+      operationId: requestTokenTopUp
+      summary: Orpheus requests additional marketing tokens beyond the $50 initial balance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenTopUpRequestInput'
+      responses:
+        '201':
+          description: Request logged
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenTopUpRequest'
+      security:
+      - ConsoleSecretAuth: []
+      tags:
+      - Token Topups
+  /token-topups/{requestId}/steward-reply:
+    post:
+      operationId: replyToTokenTopUp
+      summary: Steward's plain Y/N reply to a Request_for_More Tokens email
+      parameters:
+      - name: requestId
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reply:
+                  type: string
+                  enum:
+                  - Y
+                  - N
+              required:
+              - reply
+      responses:
+        '200':
+          description: Decision applied
+        '404':
+          description: No such request
+      security:
+      - ConsoleSecretAuth: []
+      tags:
+      - Token Topups
+components:
+  schemas:
+    TokenTopUpRequest:
+      type: object
+      properties:
+        requestId:
+          type: string
+        amountRequested:
+          type: number
+        campaignDescription:
+          type: string
+        costJustification:
+          type: string
+        decision:
+          type:
+          - string
+          - 'null'
+          enum:
+          - Approved
+          - Rejected
+          - null
+    TokenTopUpRequestInput:
+      type: object
+      properties:
+        amountRequested:
+          type: number
+        campaignDescription:
+          type: string
+        costJustification:
+          type: string
+      required:
+      - amountRequested
+      - campaignDescription
+      - costJustification
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: Customer/external-agent key issued via POST /keys.
+    ConsoleSecretAuth:
+      type: apiKey
+      in: header
+      name: X-Console-Secret
+      description: Internal Orpheus/Charon-only credential. Never issued to customers or external agents.
