@@ -1,7 +1,7 @@
 {
   "provider": "01mind-net",
   "sources": [
-    "01mind-net-openapi.json"
+    "_original/01mind-net-openapi.json"
   ],
   "outputs": [
     "01mind-net-campaigns-api-openapi.yml",
@@ -14,12 +14,11 @@
     "01mind-net-tool-requests-api-openapi.yml",
     "01mind-net-venue-api-openapi.yml"
   ],
-  "archived": [
-    "archived openapi/01mind-net-openapi.json"
-  ],
+  "archived": [],
   "errors": [],
   "warnings": [],
   "notes": [
+    "sourced from openapi/_original/ (1 archived document(s)); previously refined output at the top level was skipped rather than re-split",
     "01mind-net-openapi.json: upgraded openapi 3.0.3 -> OpenAPI 3.2.0",
     "01mind-net-openapi.json: tagged paths POST /tool-requests -> Tool Requests",
     "01mind-net-openapi.json: tagged paths GET /tool-requests/{requestId} -> Tool Requests",
@@ -58,7 +57,17 @@
     "01mind-net-openapi.json: declared missing tag: Token Topups",
     "01mind-net-openapi.json: declared missing tag: Tool Requests",
     "01mind-net-openapi.json: declared missing tag: Venue",
-    "apis.yml register: written (+9 apis, 11 total)"
+    "apis.yml register: already-registered"
   ],
-  "skipped": []
+  "skipped": [
+    "01mind-net-campaigns-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "01mind-net-charon-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "01mind-net-document-templates-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "01mind-net-execute-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "01mind-net-research-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "01mind-net-sandbox-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "01mind-net-token-topups-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "01mind-net-tool-requests-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "01mind-net-venue-api-openapi.yml: previously refined output, superseded by openapi/_original/"
+  ]
 }

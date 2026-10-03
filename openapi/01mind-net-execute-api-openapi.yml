@@ -56,6 +56,45 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
+    RenderDocumentResult:
+      type: object
+      properties:
+        filename:
+          type: string
+        contentType:
+          type: string
+        encoding:
+          type: string
+          enum:
+          - base64
+        bytes:
+          type: integer
+        sha256:
+          type: string
+          description: Checksum of the returned bytes, so a delivery dispute can be settled without either side retaining the document.
+        file:
+          type: string
+          description: The document, base64 encoded.
+        warnings:
+          type: array
+          items:
+            type: string
+          description: Every change the server made to your input. Empty when nothing was altered.
+        paidWith:
+          type: string
+          enum:
+          - free
+          - purchased
+          - prepaid
+          - internal
+        freeDocumentsRemainingThisMonth:
+          type:
+          - integer
+          - 'null'
+        purchasedDocumentsRemaining:
+          type:
+          - integer
+          - 'null'
     RenderDocumentInput:
       type: object
       description: 'Input for the render-document listing. Supply `format` plus EXACTLY ONE of blocks, markdown, sheets, or templateId. Every normalisation the server performs -- a sheet renamed to satisfy Excel, a ragged table row padded, a cell truncated -- is returned in warnings[]; nothing is silently altered. Nothing is stored: the file comes back as base64 in the same response and there is no URL to fetch it from later.'
@@ -137,45 +176,6 @@ components:
         walletAddress:
           type: string
           description: The paying wallet, when drawing on purchased credit rather than the free monthly allowance.
-    RenderDocumentResult:
-      type: object
-      properties:
-        filename:
-          type: string
-        contentType:
-          type: string
-        encoding:
-          type: string
-          enum:
-          - base64
-        bytes:
-          type: integer
-        sha256:
-          type: string
-          description: Checksum of the returned bytes, so a delivery dispute can be settled without either side retaining the document.
-        file:
-          type: string
-          description: The document, base64 encoded.
-        warnings:
-          type: array
-          items:
-            type: string
-          description: Every change the server made to your input. Empty when nothing was altered.
-        paidWith:
-          type: string
-          enum:
-          - free
-          - purchased
-          - prepaid
-          - internal
-        freeDocumentsRemainingThisMonth:
-          type:
-          - integer
-          - 'null'
-        purchasedDocumentsRemaining:
-          type:
-          - integer
-          - 'null'
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

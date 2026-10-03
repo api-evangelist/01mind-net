@@ -163,6 +163,73 @@ paths:
       - Tool Requests
 components:
   schemas:
+    FaultRecord:
+      type: object
+      properties:
+        affectedItem:
+          type: string
+        errorType:
+          type: string
+        firstObserved:
+          type: string
+          format: date-time
+        recurrenceCount:
+          type: number
+        severity:
+          type: string
+          enum:
+          - CRITICAL
+          - STANDARD
+        status:
+          type: string
+          enum:
+          - Open
+          - Escalated
+          - Resolved
+        registryTierAtBuild:
+          type: string
+    ToolGenerationRequestResult:
+      type: object
+      properties:
+        requestId:
+          type: string
+        decision:
+          type: string
+          enum:
+          - AutoBuilt
+          - PendingStewardApproval
+          - RejectedUnsafe
+          - ApprovedByStewart
+          - RejectedByStewart
+        registryTier:
+          type: string
+          enum:
+          - Safe
+          - Needs Approval
+          - Unsafe
+    ToolGenerationRequest:
+      type: object
+      properties:
+        requestId:
+          type: string
+        requestingAgent:
+          type: string
+        toolDescription:
+          type: string
+        registryTier:
+          type: string
+        decision:
+          type: string
+        buildFeeCharged:
+          type: number
+        validationRegistryStatus:
+          type: string
+          enum:
+          - Pending
+          - Passed
+          - Failed
+        requestCountForThisTool:
+          type: number
     ToolGenerationRequestInput:
       type: object
       properties:
@@ -235,73 +302,6 @@ components:
       required:
       - requestingAgent
       - toolDescription
-    ToolGenerationRequestResult:
-      type: object
-      properties:
-        requestId:
-          type: string
-        decision:
-          type: string
-          enum:
-          - AutoBuilt
-          - PendingStewardApproval
-          - RejectedUnsafe
-          - ApprovedByStewart
-          - RejectedByStewart
-        registryTier:
-          type: string
-          enum:
-          - Safe
-          - Needs Approval
-          - Unsafe
-    FaultRecord:
-      type: object
-      properties:
-        affectedItem:
-          type: string
-        errorType:
-          type: string
-        firstObserved:
-          type: string
-          format: date-time
-        recurrenceCount:
-          type: number
-        severity:
-          type: string
-          enum:
-          - CRITICAL
-          - STANDARD
-        status:
-          type: string
-          enum:
-          - Open
-          - Escalated
-          - Resolved
-        registryTierAtBuild:
-          type: string
-    ToolGenerationRequest:
-      type: object
-      properties:
-        requestId:
-          type: string
-        requestingAgent:
-          type: string
-        toolDescription:
-          type: string
-        registryTier:
-          type: string
-        decision:
-          type: string
-        buildFeeCharged:
-          type: number
-        validationRegistryStatus:
-          type: string
-          enum:
-          - Pending
-          - Passed
-          - Failed
-        requestCountForThisTool:
-          type: number
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
