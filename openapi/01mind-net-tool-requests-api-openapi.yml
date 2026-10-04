@@ -163,6 +163,29 @@ paths:
       - Tool Requests
 components:
   schemas:
+    ToolGenerationRequest:
+      type: object
+      properties:
+        requestId:
+          type: string
+        requestingAgent:
+          type: string
+        toolDescription:
+          type: string
+        registryTier:
+          type: string
+        decision:
+          type: string
+        buildFeeCharged:
+          type: number
+        validationRegistryStatus:
+          type: string
+          enum:
+          - Pending
+          - Passed
+          - Failed
+        requestCountForThisTool:
+          type: number
     FaultRecord:
       type: object
       properties:
@@ -207,29 +230,6 @@ components:
           - Safe
           - Needs Approval
           - Unsafe
-    ToolGenerationRequest:
-      type: object
-      properties:
-        requestId:
-          type: string
-        requestingAgent:
-          type: string
-        toolDescription:
-          type: string
-        registryTier:
-          type: string
-        decision:
-          type: string
-        buildFeeCharged:
-          type: number
-        validationRegistryStatus:
-          type: string
-          enum:
-          - Pending
-          - Passed
-          - Failed
-        requestCountForThisTool:
-          type: number
     ToolGenerationRequestInput:
       type: object
       properties:

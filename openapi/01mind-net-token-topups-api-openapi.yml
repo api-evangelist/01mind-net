@@ -66,19 +66,6 @@ paths:
       - Token Topups
 components:
   schemas:
-    TokenTopUpRequestInput:
-      type: object
-      properties:
-        amountRequested:
-          type: number
-        campaignDescription:
-          type: string
-        costJustification:
-          type: string
-      required:
-      - amountRequested
-      - campaignDescription
-      - costJustification
     TokenTopUpRequest:
       type: object
       properties:
@@ -98,6 +85,19 @@ components:
           - Approved
           - Rejected
           - null
+    TokenTopUpRequestInput:
+      type: object
+      properties:
+        amountRequested:
+          type: number
+        campaignDescription:
+          type: string
+        costJustification:
+          type: string
+      required:
+      - amountRequested
+      - campaignDescription
+      - costJustification
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
