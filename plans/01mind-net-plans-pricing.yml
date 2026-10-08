@@ -99,3 +99,95 @@ payment_terms:
   card_payments: false
   gst: registered in Australia; may be added to the payment request for Australian buyers
   refunds: for non-delivery only (Terms 6.2); none for change of mind (6.4)
+x-canonical:
+  generated: '2026-10-08'
+  vocabulary: all/0-working/economics/plans-canonical.yml
+  models:
+  - hybrid
+  - subscription
+  units: []
+  plans:
+  - name: Render Document
+    access: other
+    model: hybrid
+    model_how: derived
+    units: []
+    periods:
+    - other
+  - name: Email Send
+    access: other
+    model: subscription
+    model_how: derived
+    units: []
+    periods:
+    - other
+  - name: Legal Research Knowledge
+    access: other
+    model: subscription
+    model_how: derived
+    units: []
+    periods:
+    - other
+  - name: AU Tax Compliance Pack
+    access: other
+    model: subscription
+    model_how: derived
+    units: []
+    periods:
+    - other
+  - name: GDPR Compliance Pack
+    access: other
+    model: subscription
+    model_how: derived
+    units: []
+    periods:
+    - one-time
+  - name: HIPAA Compliance Pack
+    access: other
+    model: subscription
+    model_how: derived
+    units: []
+    periods:
+    - one-time
+  - name: ASIC ACCC Guidance Pack
+    access: other
+    model: subscription
+    model_how: derived
+    units: []
+    periods:
+    - one-time
+  - name: Aviation Safety Pack
+    access: other
+    model: subscription
+    model_how: derived
+    units: []
+    periods:
+    - one-time
+  - name: Agent Economy Venue Intelligence
+    access: other
+    model: subscription
+    model_how: derived
+    units: []
+    periods:
+    - other
+  - name: State of the Agent Economy Report
+    access: other
+    model: subscription
+    model_how: derived
+    units: []
+    periods:
+    - one-time
+  - name: Charon-built micro-tool (Track A)
+    access: other
+    model: subscription
+    model_how: derived
+    units: []
+    periods:
+    - other
+  - name: Charon-built bundle (Track B)
+    access: other
+    model: subscription
+    model_how: derived
+    units: []
+    periods:
+    - other
