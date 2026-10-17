@@ -163,29 +163,6 @@ paths:
       - Tool Requests
 components:
   schemas:
-    ToolGenerationRequest:
-      type: object
-      properties:
-        requestId:
-          type: string
-        requestingAgent:
-          type: string
-        toolDescription:
-          type: string
-        registryTier:
-          type: string
-        decision:
-          type: string
-        buildFeeCharged:
-          type: number
-        validationRegistryStatus:
-          type: string
-          enum:
-          - Pending
-          - Passed
-          - Failed
-        requestCountForThisTool:
-          type: number
     FaultRecord:
       type: object
       properties:
@@ -211,25 +188,6 @@ components:
           - Resolved
         registryTierAtBuild:
           type: string
-    ToolGenerationRequestResult:
-      type: object
-      properties:
-        requestId:
-          type: string
-        decision:
-          type: string
-          enum:
-          - AutoBuilt
-          - PendingStewardApproval
-          - RejectedUnsafe
-          - ApprovedByStewart
-          - RejectedByStewart
-        registryTier:
-          type: string
-          enum:
-          - Safe
-          - Needs Approval
-          - Unsafe
     ToolGenerationRequestInput:
       type: object
       properties:
@@ -302,6 +260,48 @@ components:
       required:
       - requestingAgent
       - toolDescription
+    ToolGenerationRequestResult:
+      type: object
+      properties:
+        requestId:
+          type: string
+        decision:
+          type: string
+          enum:
+          - AutoBuilt
+          - PendingStewardApproval
+          - RejectedUnsafe
+          - ApprovedByStewart
+          - RejectedByStewart
+        registryTier:
+          type: string
+          enum:
+          - Safe
+          - Needs Approval
+          - Unsafe
+    ToolGenerationRequest:
+      type: object
+      properties:
+        requestId:
+          type: string
+        requestingAgent:
+          type: string
+        toolDescription:
+          type: string
+        registryTier:
+          type: string
+        decision:
+          type: string
+        buildFeeCharged:
+          type: number
+        validationRegistryStatus:
+          type: string
+          enum:
+          - Pending
+          - Passed
+          - Failed
+        requestCountForThisTool:
+          type: number
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
