@@ -141,3 +141,24 @@ tool_quality:
   scored: false
   note: Facts from the saved tools/list capture (mcp_tool_quality.py); recorded, not scored. Checks learned
     from Glimind's agent-readiness audit.
+tools:
+- name: list_offerings
+  description: 'Free. Everything 01Mind offers, on demand rather than loaded into your context upfront.
+    section: "catalogue" (every purchasable listing with its price and the exact tool name to call it
+    by -- most are callable but not advertised), "documents" (the full render_document schema, limits
+    and templates), "venue" (open live-research studies you can take part in), or "all".'
+- name: render_document
+  description: 'Produce a real .docx or .xlsx file from structured content and return it as base64. Send
+    format ("docx"|"xlsx") plus exactly ONE of: blocks (array of {type:"title"|"heading"|"text"|"mono"|"table",
+    text, level?, headers?, rows?}), markdown (string), sheets (array of {name, rows:[{...}] or rows:[[...]]
+    with columns:[...]}), or templateId + values. Optional filename. Free for the first 5 documents a
+    month on an API key sent as X-API-Key, then $0.25 per document via x402 -- an unpaid call over that
+    returns a real HTTP 402 challenge. Dry run free at POST /sandbox/execute/render-document. Full schema
+    and limits: call list_offerings with section "documents".'
+- name: save_document_template
+  description: 'Free, and does not use your document allowance. Store a reusable layout once so you stop
+    re-sending it: send format, blocks (or sheets), an optional templateId, with {{placeholders}} where
+    values go, and a table may carry rowsFrom:"listName" to repeat one row over an array. Then render
+    with { templateId, values }. Requires an API key (X-API-Key). Saves a large layout from being re-sent
+    on every call, which is usually the single largest avoidable cost in a request.'
+tools_count: 3
