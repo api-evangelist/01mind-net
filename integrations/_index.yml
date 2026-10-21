@@ -19,6 +19,102 @@
     registered_name: net.01mind/charon
     register_id: net.01mind/charon
     detected_by: sweep-agent-tools.py
-    detected: '2026-10-15'
+    detected: '2026-10-19'
+  status: not-a-workflow
+  arazzo: null
+- slug: 01mind-net-a2a-protocol-own-agent-card
+  label: A2A protocol (own Agent Card)
+  partner_name: A2A protocol (own Agent Card)
+  category: A2A agent
+  type: register
+  channel: provider-built
+  evidence: https://01mind.net/.well-known/agent-card.json
+  source: edge
+  relationship: compatible
+  contract_reference:
+    register: provider's own /.well-known/agent-card.json
+    spec_file: null
+    standard: A2A
+    role: a2a-agent-card
+    registered_name: 01Mind
+    organization: 01Mind
+    matched_domain: 01mind.net
+    matched_by: own-domain
+    detected_by: sweep-ai-agents.py
+    detected: '2026-10-19'
+  status: not-a-workflow
+  arazzo: null
+- slug: 01mind-net-a2aregistry-org
+  label: a2aregistry.org
+  partner_name: a2aregistry.org
+  category: A2A agent registry
+  type: register
+  channel: standard-directory
+  evidence: https://a2aregistry.org/api/agents/9e381d24-5fdb-4f5a-bab7-9a097d8deaf2
+  source: edge
+  relationship: compatible
+  contract_reference:
+    register: a2aregistry.org /api/agents
+    spec_file: null
+    standard: A2A
+    role: a2a-registry-listing
+    registered_name: 01Mind
+    matched_domain: 01mind.net
+    matched_by: domain
+    matched_via: card-host
+    listings_context: 1
+    sample_agents:
+    - 01Mind
+    detected_by: sweep-ai-agents.py
+    detected: '2026-10-19'
+  status: not-a-workflow
+  arazzo: null
+- slug: 01mind-net-coinbase-cdp-x402-bazaar
+  label: Coinbase CDP x402 Bazaar
+  partner: coinbase
+  partner_name: Coinbase CDP x402 Bazaar
+  type: marketplace
+  marketplace: own
+  channel: partner-built
+  evidence: https://api.cdp.coinbase.com/platform/v2/x402/discovery/resources?limit=1000
+  source: edge
+  relationship: platform-app
+  status: not-a-workflow
+  arazzo: null
+- slug: 01mind-net-x402-protocol-live-402-probe
+  label: x402 protocol (live 402 probe)
+  partner_name: x402 protocol (live 402 probe)
+  category: x402 pay-per-call conformance (observed)
+  type: register
+  channel: standard-directory
+  evidence: https://01mind.net/purchase/dyn-baf663b065a63397
+  source: edge
+  relationship: standard-participant
+  contract_reference:
+    register: live x402 probe (unauthenticated request to a documented paid resource + negative control)
+    standard: x402
+    spec_file: null
+    role: x402-resource-server
+    matched_by: repo
+    certified_products:
+    - product: 'x402 resource server: payment challenge observed'
+      product_type: x402 resource server
+      lapsed: false
+      observed: '2026-10-21'
+      probe_url: https://01mind.net/purchase/dyn-baf663b065a63397
+      probe_method: POST
+      evidence:
+      - header:payment-required
+      - body:x402Version
+      - body:accepts[scheme,payTo,asset]
+      negative_control_status: 404
+    probes:
+    - url: https://01mind.net/purchase/dyn-baf663b065a63397
+      method: POST
+      status: 402
+    signal_note: 'conformance OBSERVED, not certified by a body: 402 plus an x402 header or a complete accepts[]
+      body, and a negative control on the same host not challenged; one entry per product type'
+    detected_by: sweep-x402-micropayments.py
+    detected: '2026-10-21'
   status: not-a-workflow
   arazzo: null
