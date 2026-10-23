@@ -126,3 +126,9 @@ components:
       in: header
       name: X-Console-Secret
       description: Internal Orpheus/Charon-only credential. Never issued to customers or external agents.
+x-provenance:
+  method: harvested
+  publisher: 01Mind
+  source: https://01mind.net/openapi.json
+  note: split by refine-openapis from the provider's own published document, verified by fetch (openapi/_original/*.fetch.json);
+    stamped by stamp-openapi-provenance.py (roadmap#793)
