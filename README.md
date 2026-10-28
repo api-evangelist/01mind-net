@@ -64,10 +64,131 @@
 > Full detail: **[Where this data comes from](https://apievangelist.com/about/where-our-data-comes-from)**
 <!-- API-EVANGELIST-PROVENANCE:END -->
 
-01Mind is a Melbourne, Australia software and intelligence-system maker that runs an agent-facing "superstore" at 01mind.net: paid, per-call API services for autonomous agents (document rendering to .docx/.xlsx, email sending, legal research, AI-written compliance packs, venue intelligence and an on-demand safe tool-generation engine), settled in USDC on Base through x402 with no account required. The catalogue is exposed as a 28-operation OpenAPI 3.0.3 REST contract, a remote MCP server at https://01mind.net/mcp and an A2A 0.3.0 agent card at /.well-known/agent-card.json.
+01Mind is a Melbourne, Australia software and intelligence-system maker (a registered business name of a sole trader, ABN 36 557 232 677) that runs an agent-facing "superstore" at 01mind.net: paid, per-call API services for autonomous agents — document rendering to real .docx/.xlsx files, plaintext email sending, live legal-research answers, AI-written compliance reference packs, agent-economy venue intelligence and an on-demand safe tool-generation engine (Charon) — settled in USDC on Base through the x402 protocol with no account required. The same catalogue is exposed three ways: a 28-operation OpenAPI 3.0.3 REST contract at https://01mind.net/openapi.json, a remote MCP server at https://01mind.net/mcp that answers an anonymous tools/list, and an A2A 0.3.0 agent card at /.well-known/agent-card.json declaring ten skills purchasable through the a2a-x402 payment extension.
 
-- Website: https://01mind.net/
-- Developers: https://01mind.net/developers
-- Catalogue and prices: https://01mind.net/catalogue
-- OpenAPI: https://01mind.net/openapi.json
-- Profiled 2026-09-19 from the provider's public surface; first surfaced through a2aregistry.org.
+**Areas:** Agents · Agentic Commerce · A2A · MCP · x402 · Document Generation · Email · Legal Research · Compliance · Tool Generation · Agent-Native · Australia
+
+## 01Mind on APIs.io
+
+Everything profiled for 01Mind is published on APIs.io rather than in this repository. Start at the provider page — **[apis.io/providers/01mind-net/](https://apis.io/providers/01mind-net/)** — or go straight to one of the APIs or properties below.
+
+### APIs (11)
+
+- [01Mind MCP Server](https://apis.io/apis/01mind-net/01mind-mcp-server/) — Remote Model Context Protocol server at https://01mind.net/mcp (Streamable HTTP, POST only, protocol version 2025-06-18, serverInfo 01Mind 3.0.0).…
+- [01Mind A2A Agent](https://apis.io/apis/01mind-net/01mind-a2a-agent/) — Agent2Agent (A2A) protocol surface: an agent card served from https://01mind.net/.well-known/agent-card.json (protocolVersion 0.3.0, JSONRPC transport,…
+- [01Mind Campaigns API](https://apis.io/apis/01mind-net/01mind-net-campaigns-api/) — The Campaigns API from 01Mind — 7 operation(s) for campaigns.
+- [01Mind Charon API](https://apis.io/apis/01mind-net/01mind-net-charon-api/) — The Charon API from 01Mind — 1 operation(s) for charon.
+- [01Mind Document Templates API](https://apis.io/apis/01mind-net/01mind-net-document-templates-api/) — The Document Templates API from 01Mind — 2 operation(s) for document templates.
+- [01Mind Execute API](https://apis.io/apis/01mind-net/01mind-net-execute-api/) — The Execute API from 01Mind — 1 operation(s) for execute.
+- [01Mind Research API](https://apis.io/apis/01mind-net/01mind-net-research-api/) — The Research API from 01Mind — 2 operation(s) for research.
+- [01Mind Sandbox API](https://apis.io/apis/01mind-net/01mind-net-sandbox-api/) — The Sandbox API from 01Mind — 1 operation(s) for sandbox.
+- [01Mind Token Topups API](https://apis.io/apis/01mind-net/01mind-net-token-topups-api/) — The Token Topups API from 01Mind — 2 operation(s) for token topups.
+- [01Mind Tool Requests API](https://apis.io/apis/01mind-net/01mind-net-tool-requests-api/) — The Tool Requests API from 01Mind — 7 operation(s) for tool requests.
+- [01Mind Venue API](https://apis.io/apis/01mind-net/01mind-net-venue-api/) — The Venue API from 01Mind — 4 operation(s) for venue.
+
+### Published properties
+
+Each property below is a page on APIs.io carrying the machine-readable artifact and what it says.
+
+#### MCP servers (1)
+
+Model Context Protocol servers that expose the API to agents.
+
+- [01mind-net-mcp.yml](https://apis.io/servers/01mind-net/01mind-net-mcp-yml/)
+
+#### Agentic access (1)
+
+Which operations an agent can call, which act, and which need a human in the loop.
+
+- [01Mind Net Agentic Access](https://apis.io/agentic-access/01mind-net/01mind-net-agentic-access/)
+
+#### Overlays (1)
+
+OpenAPI overlays, including conversational phrasing for each operation.
+
+- [01Mind Net Openapi Overlay](https://apis.io/overlays/01mind-net/01mind-net-openapi-overlay/)
+
+#### Security (2)
+
+Authentication, trust centre, and vulnerability disclosure.
+
+- [01Mind Net Authentication](https://apis.io/security/01mind-net/01mind-net-authentication/)
+- [01Mind Net Domain Security](https://apis.io/security/01mind-net/01mind-net-domain-security/)
+
+#### Plans and pricing (1)
+
+Published plans, tiers and prices.
+
+- [01Mind Net Plans Pricing](https://apis.io/plans/01mind-net/01mind-net-plans-pricing/)
+
+#### Rate limits (1)
+
+Published request limits.
+
+- [01Mind Net Rate Limits](https://apis.io/rate-limits/01mind-net/01mind-net-rate-limits/)
+
+## Where to find this API
+
+Links to the company's own pages. This repository publishes no copy of their specifications — the canonical document is theirs and lives at the URLs below.
+
+- [Website](https://01mind.net/)
+- [Documentation](https://01mind.net/developers)
+- [Pricing](https://01mind.net/catalogue)
+- [Support](https://01mind.net/contact)
+- [Terms of service](https://01mind.net/terms)
+- [Privacy policy](https://01mind.net/privacy)
+
+## API Evangelist rating
+
+**Kin Score 45.3** — developing · rubric 0.25.0 · scored 2026-10-23
+
+| Facet | Score |
+|---|---|
+| Discoverability | 65.0 |
+| Contract quality | 43.5 |
+| Contract governance | 18.2 |
+| Operational transparency | 21.1 |
+| Developer ergonomics | 42.3 |
+| Access clarity | 63.2 |
+
+**Agent readiness 34.5** — agent-ready
+
+| Agent-readiness dimension | Result |
+|---|---|
+| Spec Presence | yes |
+| Agentic Access | derived (partial credit) |
+| Reversibility Documented | — |
+| MCP Server | documented (partial credit) |
+| Auth Clarity | bearer (partial credit) |
+| Idempotency | — |
+| Error Semantics | derived (partial credit) |
+| OpenAPI Examples | partial |
+| Rate Limit Signal | documented (partial credit) |
+| Event Surface Described | — |
+| Agent Skills | derived (partial credit) |
+| Well Known Catalog | — |
+| Consent Identity | — |
+| Agent Card | conformant |
+| Dry Run Mode | — |
+| Delegated Identity | — |
+| Protected Resource Metadata | — |
+| Dynamic Client Registration | — |
+| Agentic Commerce | — |
+| Pagination Ratio | na |
+| Operation Distinctiveness | distinct |
+
+**Regulatory alignment 32.4** — Horizontal (data, software, accessibility, platform)
+
+The rubric is published at [github.com/api-evangelist/kin-score](https://github.com/api-evangelist/kin-score). The per-check breakdown behind these numbers — which checks were earned, partial or missed — along with score history and how this provider compares to its peers, is available at [apis.io/providers/01mind-net/](https://apis.io/providers/01mind-net/).
+
+## How this profile is made
+
+API Evangelist profiles a company's public API surface the way a developer would find it: the website, developer portal and documentation, the specifications it publishes, its public repositories, and its pricing, status and changelog pages. From that it derives the properties above — contracts split per API, workflows, schemas, collections, governance rules, plans and rate limits — and scores them against the published [Kin Score rubric](https://github.com/api-evangelist/kin-score).
+
+The artifacts are published on [APIs.io](https://apis.io), not in this repository. This repository is the public record for 01Mind: the place to say something is wrong, missing or out of date, and to ask for a re-score or a removal.
+
+## Open an issue
+
+- **Something about this listing** — a wrong description, a missing API, a stale artifact or a question about the rating: [open an issue on this repository](https://github.com/api-evangelist/01mind-net/issues/new).
+- **A new API, or one that is not in the catalog yet** — [submit it on APIs.io](https://apis.io/add/).
+- **Anything else** — [the APIs.io inbox](https://github.com/api-search/inbox/issues/new) or [info@apievangelist.com](mailto:info@apievangelist.com).
